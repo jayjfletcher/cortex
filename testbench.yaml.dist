@@ -1,0 +1,27 @@
+providers:
+    - Jayi\Cortex\CortexServiceProvider
+    - Workbench\App\Providers\WorkbenchServiceProvider
+env:
+    - APP_ENV="testing"
+    - DB_CONNECTION="testing"
+    - BCRYPT_ROUNDS="4"
+    - MAIL_MAILER="array"
+    - QUEUE_CONNECTION="sync"
+    - CACHE_STORE="array"
+    - CACHE_DRIVER="array"
+    - APP_MAINTENANCE_DRIVER="file"
+    - BCRYPT_ROUNDS="4"
+    - CACHE_STORE="array"
+    - PULSE_ENABLED="false"
+    - SESSION_DRIVER="array"
+    - TELESCOPE_ENABLED="false"
+migrations:
+    - tests/database/migrations
+workbench:
+    install: false
+    discovers:
+        web: false
+        api: false
+        commands: true
+        views: false
+        config: true
