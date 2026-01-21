@@ -31,7 +31,7 @@ class Tool implements ToolContract
      */
     public static function make(string $name): static
     {
-        $tool = new static();
+        $tool = new static;
         $tool->toolName = $name;
         $tool->toolInputSchema = Schema::object();
 
@@ -45,7 +45,7 @@ class Tool implements ToolContract
      */
     public static function fromInvokable(string $class): static
     {
-        $tool = new static();
+        $tool = new static;
         $reflection = new ReflectionClass($class);
 
         if (! $reflection->hasMethod('__invoke')) {

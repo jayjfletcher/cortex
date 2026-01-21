@@ -5,7 +5,6 @@ declare(strict_types=1);
 use JayI\Cortex\Plugins\Schema\Schema;
 use JayI\Cortex\Plugins\Tool\Tool;
 use JayI\Cortex\Plugins\Tool\ToolCollection;
-use JayI\Cortex\Plugins\Tool\ToolContext;
 use JayI\Cortex\Plugins\Tool\ToolResult;
 
 describe('ToolCollection', function () {

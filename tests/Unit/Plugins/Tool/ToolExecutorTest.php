@@ -5,7 +5,6 @@ declare(strict_types=1);
 use JayI\Cortex\Contracts\PluginManagerContract;
 use JayI\Cortex\Exceptions\ToolException;
 use JayI\Cortex\Plugins\Schema\Schema;
-use JayI\Cortex\Plugins\Tool\Contracts\ToolContract;
 use JayI\Cortex\Plugins\Tool\Contracts\ToolRegistryContract;
 use JayI\Cortex\Plugins\Tool\Tool;
 use JayI\Cortex\Plugins\Tool\ToolContext;

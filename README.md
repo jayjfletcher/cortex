@@ -79,7 +79,7 @@ $weatherTool = Tool::make('get_weather')
 
 $response = Cortex::chat()
     ->message('What is the weather in Paris?')
-    ->tools([$weatherTool])
+    ->withTools([$weatherTool])
     ->send();
 ```
 

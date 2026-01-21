@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 use JayI\Cortex\Plugins\Chat\ChatResponse;
+use JayI\Cortex\Plugins\Chat\MessageRole;
 use JayI\Cortex\Plugins\Chat\Messages\Message;
 use JayI\Cortex\Plugins\Chat\Messages\ToolUseContent;
-use JayI\Cortex\Plugins\Chat\MessageRole;
 use JayI\Cortex\Plugins\Chat\StopReason;
 use JayI\Cortex\Plugins\Chat\Usage;
 use JayI\Cortex\Plugins\Provider\Model;

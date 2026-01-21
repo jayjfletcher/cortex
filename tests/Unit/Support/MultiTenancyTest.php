@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 use JayI\Cortex\Contracts\TenantContextContract;
 use JayI\Cortex\Contracts\TenantResolverContract;
+use JayI\Cortex\Support\NullTenantResolver;
 use JayI\Cortex\Support\TenantContext;
 use JayI\Cortex\Support\TenantManager;
-use JayI\Cortex\Support\NullTenantResolver;
 
 describe('TenantContext', function () {
     it('creates tenant context with id', function () {
@@ -103,7 +103,7 @@ describe('TenantContext', function () {
 
 describe('NullTenantResolver', function () {
     it('always returns null', function () {
-        $resolver = new NullTenantResolver();
+        $resolver = new NullTenantResolver;
 
         expect($resolver->resolve())->toBeNull();
     });
@@ -111,7 +111,7 @@ describe('NullTenantResolver', function () {
 
 describe('TenantManager', function () {
     it('sets and gets current tenant', function () {
-        $resolver = new NullTenantResolver();
+        $resolver = new NullTenantResolver;
         $manager = new TenantManager($resolver);
 
         $tenant = new TenantContext('tenant-123');
@@ -122,7 +122,7 @@ describe('TenantManager', function () {
     });
 
     it('clears current tenant', function () {
-        $resolver = new NullTenantResolver();
+        $resolver = new NullTenantResolver;
         $manager = new TenantManager($resolver);
 
         $tenant = new TenantContext('tenant-123');
@@ -133,7 +133,7 @@ describe('TenantManager', function () {
     });
 
     it('runs callback in tenant context', function () {
-        $resolver = new NullTenantResolver();
+        $resolver = new NullTenantResolver;
         $manager = new TenantManager($resolver);
 
         $originalTenant = new TenantContext('original');
@@ -144,6 +144,7 @@ describe('TenantManager', function () {
 
         $result = $manager->withTenant($scopedTenant, function () use ($manager, &$capturedId) {
             $capturedId = $manager->current()->id();
+
             return 'result';
         });
 
@@ -153,7 +154,7 @@ describe('TenantManager', function () {
     });
 
     it('restores tenant after exception in withTenant', function () {
-        $resolver = new NullTenantResolver();
+        $resolver = new NullTenantResolver;
         $manager = new TenantManager($resolver);
 
         $originalTenant = new TenantContext('original');
@@ -183,7 +184,7 @@ describe('TenantManager', function () {
     });
 
     it('checks if tenant is active', function () {
-        $resolver = new NullTenantResolver();
+        $resolver = new NullTenantResolver;
         $manager = new TenantManager($resolver);
 
         expect($manager->hasTenant())->toBeFalse();
@@ -194,7 +195,7 @@ describe('TenantManager', function () {
     });
 
     it('returns the resolver instance', function () {
-        $resolver = new NullTenantResolver();
+        $resolver = new NullTenantResolver;
         $manager = new TenantManager($resolver);
 
         expect($manager->resolver())->toBe($resolver);
@@ -211,7 +212,7 @@ describe('TenantContext Contract Implementation', function () {
 
 describe('TenantResolver Contract Implementation', function () {
     it('implements TenantResolverContract', function () {
-        $resolver = new NullTenantResolver();
+        $resolver = new NullTenantResolver;
 
         expect($resolver)->toBeInstanceOf(TenantResolverContract::class);
     });

@@ -129,7 +129,7 @@ describe('Extension Points', function () {
         $point = ExtensionPoint::make('test-point', stdClass::class);
         $this->manager->registerExtensionPoint('test-point', $point);
 
-        $extension = new stdClass();
+        $extension = new stdClass;
         $extension->name = 'test';
 
         $this->manager->extend('test-point', $extension);
@@ -139,7 +139,7 @@ describe('Extension Points', function () {
     });
 
     it('throws exception for unknown extension point', function () {
-        expect(fn () => $this->manager->extend('unknown', new stdClass()))
+        expect(fn () => $this->manager->extend('unknown', new stdClass))
             ->toThrow(PluginException::class);
     });
 });
@@ -154,8 +154,8 @@ describe('Hooks', function () {
     });
 
     it('applies hooks in priority order', function () {
-        $this->manager->addHook('test.hook', fn ($value) => $value . '-low', priority: 1);
-        $this->manager->addHook('test.hook', fn ($value) => $value . '-high', priority: 10);
+        $this->manager->addHook('test.hook', fn ($value) => $value.'-low', priority: 1);
+        $this->manager->addHook('test.hook', fn ($value) => $value.'-high', priority: 10);
 
         $result = $this->manager->applyHooks('test.hook', 'start');
 
@@ -198,7 +198,8 @@ function createTestPlugin(
     array $provides = [],
     ?Closure $bootCallback = null
 ): PluginContract {
-    return new class($id, $dependencies, $provides, $bootCallback) implements PluginContract {
+    return new class($id, $dependencies, $provides, $bootCallback) implements PluginContract
+    {
         public function __construct(
             private string $pluginId,
             private array $deps,
@@ -213,7 +214,7 @@ function createTestPlugin(
 
         public function name(): string
         {
-            return 'Test Plugin: ' . $this->pluginId;
+            return 'Test Plugin: '.$this->pluginId;
         }
 
         public function version(): string
@@ -231,9 +232,7 @@ function createTestPlugin(
             return $this->prov;
         }
 
-        public function register(PluginManagerContract $manager): void
-        {
-        }
+        public function register(PluginManagerContract $manager): void {}
 
         public function boot(PluginManagerContract $manager): void
         {

@@ -74,7 +74,7 @@ class ObjectSchema extends Schema
      */
     public function nested(string $name, Closure $callback): static
     {
-        $nestedSchema = new static();
+        $nestedSchema = new static;
         $callback($nestedSchema);
 
         return $this->property($name, $nestedSchema);

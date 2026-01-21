@@ -37,7 +37,7 @@ class WorkflowState extends Data
             runId: $runId,
             currentNode: $entryPoint,
             status: WorkflowStatus::Running,
-            startedAt: new DateTimeImmutable(),
+            startedAt: new DateTimeImmutable,
         );
     }
 
@@ -175,7 +175,7 @@ class WorkflowState extends Data
             history: $this->history,
             pauseReason: $reason,
             startedAt: $this->startedAt,
-            pausedAt: new DateTimeImmutable(),
+            pausedAt: new DateTimeImmutable,
             completedAt: $this->completedAt,
         );
     }
@@ -214,7 +214,7 @@ class WorkflowState extends Data
             pauseReason: null,
             startedAt: $this->startedAt,
             pausedAt: null,
-            completedAt: new DateTimeImmutable(),
+            completedAt: new DateTimeImmutable,
         );
     }
 
@@ -233,7 +233,7 @@ class WorkflowState extends Data
             pauseReason: null,
             startedAt: $this->startedAt,
             pausedAt: null,
-            completedAt: new DateTimeImmutable(),
+            completedAt: new DateTimeImmutable,
         );
     }
 }

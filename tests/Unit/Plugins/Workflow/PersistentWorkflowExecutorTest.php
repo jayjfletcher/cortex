@@ -152,7 +152,7 @@ describe('PersistentWorkflowExecutor', function () {
             ->with('non-existent')
             ->andReturn(null);
 
-        expect(fn() => $this->executor->resumeByRunId($workflow, 'non-existent'))
+        expect(fn () => $this->executor->resumeByRunId($workflow, 'non-existent'))
             ->toThrow(WorkflowNotFoundException::class);
     });
 
@@ -166,7 +166,7 @@ describe('PersistentWorkflowExecutor', function () {
             status: WorkflowStatus::Completed,
         );
 
-        expect(fn() => $this->executor->resume($workflow, $completedState))
+        expect(fn () => $this->executor->resume($workflow, $completedState))
             ->toThrow(WorkflowNotPausedException::class);
     });
 

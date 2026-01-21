@@ -64,10 +64,36 @@ class PromptRegistry implements PromptRegistryContract
         return $this->prompts[$id][$latestVersion];
     }
 
-    public function all(): Collection
+    public function all(): PromptCollection
     {
-        return collect($this->prompts)
-            ->map(fn (array $versions) => collect($versions)->last());
+        $latestPrompts = [];
+        foreach ($this->prompts as $id => $versions) {
+            $sortedVersions = collect(array_keys($versions))->sort(SORT_NATURAL)->values();
+            $latestVersion = $sortedVersions->last();
+            $latestPrompts[$id] = $versions[$latestVersion];
+        }
+
+        return PromptCollection::make($latestPrompts);
+    }
+
+    /**
+     * Get only the specified prompts.
+     *
+     * @param  array<int, string>  $ids
+     */
+    public function only(array $ids): PromptCollection
+    {
+        return $this->all()->only($ids);
+    }
+
+    /**
+     * Get all prompts except the specified ones.
+     *
+     * @param  array<int, string>  $ids
+     */
+    public function except(array $ids): PromptCollection
+    {
+        return $this->all()->except($ids);
     }
 
     /**
@@ -80,6 +106,8 @@ class PromptRegistry implements PromptRegistryContract
 
     /**
      * Get all versions of a specific prompt.
+     *
+     * @return Collection<string, PromptContract>
      */
     public function allVersions(string $id): Collection
     {

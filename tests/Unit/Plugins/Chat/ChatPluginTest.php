@@ -5,8 +5,8 @@ declare(strict_types=1);
 use Illuminate\Contracts\Container\Container;
 use JayI\Cortex\Contracts\PluginContract;
 use JayI\Cortex\Contracts\PluginManagerContract;
-use JayI\Cortex\Plugins\Chat\ChatPlugin;
 use JayI\Cortex\Plugins\Chat\Broadcasting\BroadcasterContract;
+use JayI\Cortex\Plugins\Chat\ChatPlugin;
 use JayI\Cortex\Plugins\Chat\Contracts\ChatClientContract;
 
 describe('ChatPlugin', function () {

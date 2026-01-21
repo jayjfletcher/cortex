@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace JayI\Cortex\Events\Subscribers;
 
-use JayI\Cortex\Events\CortexEvent;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
+use JayI\Cortex\Events\CortexEvent;
 
 class EventLoggingSubscriber
 {

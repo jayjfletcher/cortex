@@ -6,6 +6,7 @@ namespace JayI\Cortex\Plugins\Workflow;
 
 use Closure;
 use JayI\Cortex\Plugins\Agent\Contracts\AgentContract;
+use JayI\Cortex\Plugins\Schema\Schema;
 use JayI\Cortex\Plugins\Tool\Contracts\ToolContract;
 use JayI\Cortex\Plugins\Workflow\Contracts\NodeContract;
 use JayI\Cortex\Plugins\Workflow\Contracts\WorkflowContract;
@@ -18,13 +19,15 @@ use JayI\Cortex\Plugins\Workflow\Nodes\LoopNode;
 use JayI\Cortex\Plugins\Workflow\Nodes\ParallelNode;
 use JayI\Cortex\Plugins\Workflow\Nodes\SubWorkflowNode;
 use JayI\Cortex\Plugins\Workflow\Nodes\ToolNode;
-use JayI\Cortex\Plugins\Schema\Schema;
+use JayI\Cortex\Support\Concerns\RequiresPlugins;
 
 /**
  * Fluent builder for workflows.
  */
 class Workflow implements WorkflowContract
 {
+    use RequiresPlugins;
+
     protected string $id;
 
     protected string $name;
@@ -153,6 +156,8 @@ class Workflow implements WorkflowContract
      * Add an agent node.
      *
      * @param  array<string, mixed>|Closure  $inputMapping
+     *
+     * @throws \JayI\Cortex\Exceptions\PluginException
      */
     public function agent(
         string $nodeId,
@@ -160,6 +165,8 @@ class Workflow implements WorkflowContract
         array|Closure $inputMapping = [],
         ?string $outputKey = null
     ): static {
+        $this->ensurePluginEnabled('agent');
+
         return $this->addNode(new AgentNode($nodeId, $agent, $inputMapping, $outputKey));
     }
 
@@ -167,6 +174,8 @@ class Workflow implements WorkflowContract
      * Add a tool node.
      *
      * @param  array<string, mixed>|Closure  $inputMapping
+     *
+     * @throws \JayI\Cortex\Exceptions\PluginException
      */
     public function tool(
         string $nodeId,
@@ -174,6 +183,8 @@ class Workflow implements WorkflowContract
         array|Closure $inputMapping = [],
         ?string $outputKey = null
     ): static {
+        $this->ensurePluginEnabled('tool');
+
         return $this->addNode(new ToolNode($nodeId, $tool, $inputMapping, $outputKey));
     }
 

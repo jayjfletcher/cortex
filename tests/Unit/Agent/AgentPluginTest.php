@@ -7,7 +7,6 @@ use Illuminate\Support\Collection;
 use JayI\Cortex\Contracts\PluginManagerContract;
 use JayI\Cortex\Plugins\Agent\Agent;
 use JayI\Cortex\Plugins\Agent\AgentPlugin;
-use JayI\Cortex\Plugins\Agent\AgentRegistry;
 use JayI\Cortex\Plugins\Agent\Contracts\AgentLoopContract;
 use JayI\Cortex\Plugins\Agent\Contracts\AgentRegistryContract;
 use JayI\Cortex\Plugins\Agent\Loops\SimpleAgentLoop;

@@ -80,8 +80,8 @@ class WorkflowPlugin implements PluginContract
             $driver = $this->config['persistence']['driver'] ?? 'database';
 
             return match ($driver) {
-                'cache' => new CacheWorkflowStateRepository(),
-                default => new DatabaseWorkflowStateRepository(),
+                'cache' => new CacheWorkflowStateRepository,
+                default => new DatabaseWorkflowStateRepository,
             };
         });
 

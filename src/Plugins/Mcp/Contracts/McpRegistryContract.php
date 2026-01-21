@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace JayI\Cortex\Plugins\Mcp\Contracts;
 
-use Illuminate\Support\Collection;
+use JayI\Cortex\Plugins\Mcp\McpServerCollection;
 
 interface McpRegistryContract
 {
@@ -25,10 +25,22 @@ interface McpRegistryContract
 
     /**
      * Get all registered servers.
-     *
-     * @return Collection<string, McpServerContract>
      */
-    public function all(): Collection;
+    public function all(): McpServerCollection;
+
+    /**
+     * Get only the specified servers.
+     *
+     * @param  array<int, string>  $ids
+     */
+    public function only(array $ids): McpServerCollection;
+
+    /**
+     * Get all servers except the specified ones.
+     *
+     * @param  array<int, string>  $ids
+     */
+    public function except(array $ids): McpServerCollection;
 
     /**
      * Connect all servers.

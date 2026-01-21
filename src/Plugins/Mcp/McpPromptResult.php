@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace JayI\Cortex\Plugins\Mcp;
 
-use JayI\Cortex\Plugins\Chat\Messages\Message;
 use JayI\Cortex\Plugins\Chat\Messages\MessageCollection;
 use Spatie\LaravelData\Data;
 

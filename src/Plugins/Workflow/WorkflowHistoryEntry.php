@@ -42,7 +42,7 @@ class WorkflowHistoryEntry extends Data
             input: $input,
             output: $output,
             duration: $duration,
-            executedAt: new DateTimeImmutable(),
+            executedAt: new DateTimeImmutable,
             success: true,
         );
     }
@@ -59,7 +59,7 @@ class WorkflowHistoryEntry extends Data
             input: $input,
             output: [],
             duration: $duration,
-            executedAt: new DateTimeImmutable(),
+            executedAt: new DateTimeImmutable,
             success: false,
             error: $error,
         );

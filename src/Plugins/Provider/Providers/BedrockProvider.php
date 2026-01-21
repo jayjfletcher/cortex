@@ -18,10 +18,6 @@ use JayI\Cortex\Plugins\Chat\ChatOptions;
 use JayI\Cortex\Plugins\Chat\ChatRequest;
 use JayI\Cortex\Plugins\Chat\ChatResponse;
 use JayI\Cortex\Plugins\Chat\MessageRole;
-use JayI\Cortex\Plugins\Chat\StopReason;
-use JayI\Cortex\Plugins\Chat\StreamChunk;
-use JayI\Cortex\Plugins\Chat\StreamedResponse;
-use JayI\Cortex\Plugins\Chat\Usage;
 use JayI\Cortex\Plugins\Chat\Messages\Content;
 use JayI\Cortex\Plugins\Chat\Messages\DocumentContent;
 use JayI\Cortex\Plugins\Chat\Messages\ImageContent;
@@ -30,6 +26,10 @@ use JayI\Cortex\Plugins\Chat\Messages\SourceType;
 use JayI\Cortex\Plugins\Chat\Messages\TextContent;
 use JayI\Cortex\Plugins\Chat\Messages\ToolResultContent;
 use JayI\Cortex\Plugins\Chat\Messages\ToolUseContent;
+use JayI\Cortex\Plugins\Chat\StopReason;
+use JayI\Cortex\Plugins\Chat\StreamChunk;
+use JayI\Cortex\Plugins\Chat\StreamedResponse;
+use JayI\Cortex\Plugins\Chat\Usage;
 use JayI\Cortex\Plugins\Provider\Contracts\ProviderContract;
 use JayI\Cortex\Plugins\Provider\Model;
 use JayI\Cortex\Plugins\Provider\ProviderCapabilities;
@@ -37,6 +37,7 @@ use JayI\Cortex\Plugins\Provider\ProviderCapabilities;
 class BedrockProvider implements ProviderContract
 {
     use DispatchesCortexEvents;
+
     protected BedrockRuntimeClient $client;
 
     /**
@@ -567,9 +568,9 @@ class BedrockProvider implements ProviderContract
         // Handle tool choice
         if ($request->options->toolChoice !== null) {
             $config['toolChoice'] = match ($request->options->toolChoice) {
-                'auto' => ['auto' => new \stdClass()],
-                'any' => ['any' => new \stdClass()],
-                'none' => ['auto' => new \stdClass()],
+                'auto' => ['auto' => new \stdClass],
+                'any' => ['any' => new \stdClass],
+                'none' => ['auto' => new \stdClass],
                 default => ['tool' => ['name' => $request->options->toolChoice]],
             };
         }

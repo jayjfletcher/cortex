@@ -226,24 +226,38 @@ return [
     | MCP Configuration
     |--------------------------------------------------------------------------
     |
-    | Configure Model Context Protocol servers.
+    | Configure Model Context Protocol servers. Servers defined here will be
+    | automatically registered with the MCP registry on boot.
     |
     */
     'mcp' => [
+        // Discovery settings - control automatic server registration from config
+        'discovery' => [
+            'enabled' => true, // Set to false to disable auto-registration of servers from config
+        ],
+
+        // Automatically connect to all servers on boot
+        'auto_connect' => false,
+
+        // Server definitions - these are registered when discovery.enabled is true
         'servers' => [
             // Stdio transport example (local process):
             // 'filesystem' => [
+            //     'name' => 'Filesystem Access',
+            //     'transport' => 'stdio',
             //     'command' => 'npx',
             //     'args' => ['-y', '@modelcontextprotocol/server-filesystem', '/path/to/dir'],
-            //     'transport' => 'stdio',
+            //     'cwd' => null,  // Working directory (optional)
+            //     'env' => [],    // Environment variables (optional)
             // ],
 
             // HTTP transport example (remote server):
-            // 'remote-server' => [
+            // 'remote-api' => [
+            //     'name' => 'Remote API Server',
             //     'transport' => 'http',
             //     'url' => 'https://mcp-server.example.com/rpc',
             //     'headers' => [
-            //         'Authorization' => 'Bearer your-api-key',
+            //         'Authorization' => 'Bearer ' . env('MCP_API_KEY'),
             //     ],
             //     'timeout' => 30,
             //     'verify_ssl' => true,

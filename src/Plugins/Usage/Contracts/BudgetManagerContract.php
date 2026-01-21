@@ -46,7 +46,7 @@ interface BudgetManagerContract
     /**
      * Check if any applicable budget would be exceeded by a request.
      *
-     * @return array<int, BudgetStatus>  Array of exceeded budget statuses
+     * @return array<int, BudgetStatus> Array of exceeded budget statuses
      */
     public function checkBudgetsForRequest(
         ?string $userId = null,

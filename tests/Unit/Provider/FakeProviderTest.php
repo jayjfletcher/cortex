@@ -29,7 +29,7 @@ describe('FakeProvider', function () {
 
     it('uses response factory', function () {
         $fake = FakeProvider::fake()->respondWith(
-            fn (ChatRequest $request) => 'Echo: ' . $request->messages->last()?->text()
+            fn (ChatRequest $request) => 'Echo: '.$request->messages->last()?->text()
         );
 
         $request = new ChatRequest(
@@ -114,8 +114,7 @@ describe('FakeProvider', function () {
 
         $fake->chat($request);
 
-        $fake->assertSent(fn (ChatRequest $r) =>
-            str_contains($r->messages->last()?->text() ?? '', 'hotels')
+        $fake->assertSent(fn (ChatRequest $r) => str_contains($r->messages->last()?->text() ?? '', 'hotels')
         );
     });
 

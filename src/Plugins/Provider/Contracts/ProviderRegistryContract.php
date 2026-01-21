@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace JayI\Cortex\Plugins\Provider\Contracts;
 
-use Illuminate\Support\Collection;
+use JayI\Cortex\Plugins\Provider\ProviderCollection;
 
 interface ProviderRegistryContract
 {
@@ -27,10 +27,22 @@ interface ProviderRegistryContract
 
     /**
      * Get all registered providers.
-     *
-     * @return Collection<string, ProviderContract>
      */
-    public function all(): Collection;
+    public function all(): ProviderCollection;
+
+    /**
+     * Get only the specified providers.
+     *
+     * @param  array<int, string>  $ids
+     */
+    public function only(array $ids): ProviderCollection;
+
+    /**
+     * Get all providers except the specified ones.
+     *
+     * @param  array<int, string>  $ids
+     */
+    public function except(array $ids): ProviderCollection;
 
     /**
      * Get the default provider.

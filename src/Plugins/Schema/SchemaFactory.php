@@ -93,7 +93,7 @@ class SchemaFactory
     public static function fromDataClass(string $class): ObjectSchema
     {
         $reflection = new ReflectionClass($class);
-        $schema = new ObjectSchema();
+        $schema = new ObjectSchema;
 
         // Get required properties from class attribute
         $requiredAttribute = $reflection->getAttributes(SchemaRequired::class, ReflectionAttribute::IS_INSTANCEOF);
@@ -156,7 +156,7 @@ class SchemaFactory
     ): Schema {
         if ($type === null) {
             // No type hint, default to string
-            return new StringSchema();
+            return new StringSchema;
         }
 
         if ($type instanceof ReflectionUnionType) {
@@ -189,12 +189,12 @@ class SchemaFactory
         if ($type instanceof ReflectionNamedType) {
             $typeName = $type->getName();
             $schema = match ($typeName) {
-                'string' => new StringSchema(),
-                'int' => new IntegerSchema(),
-                'float' => new NumberSchema(),
-                'bool' => new BooleanSchema(),
+                'string' => new StringSchema,
+                'int' => new IntegerSchema,
+                'float' => new NumberSchema,
+                'bool' => new BooleanSchema,
                 'array' => self::createArraySchemaFromDocComment($docComment),
-                default => new StringSchema(), // Default to string for unknown types
+                default => new StringSchema, // Default to string for unknown types
             };
 
             if ($type->allowsNull()) {
@@ -204,7 +204,7 @@ class SchemaFactory
             return $schema;
         }
 
-        return new StringSchema();
+        return new StringSchema;
     }
 
     /**
@@ -212,18 +212,18 @@ class SchemaFactory
      */
     protected static function createArraySchemaFromDocComment(string|false $docComment): ArraySchema
     {
-        $itemSchema = new StringSchema(); // Default
+        $itemSchema = new StringSchema; // Default
 
         if ($docComment !== false) {
             // Match @var string[], @var array<string>, @var array<int, string>, etc.
             if (preg_match('/@var\s+(?:array<(?:\w+,\s*)?(\w+)>|(\w+)\[\])/', $docComment, $matches)) {
                 $itemType = $matches[1] !== '' ? $matches[1] : ($matches[2] ?? 'string');
                 $itemSchema = match (strtolower($itemType)) {
-                    'string' => new StringSchema(),
-                    'int', 'integer' => new IntegerSchema(),
-                    'float', 'double' => new NumberSchema(),
-                    'bool', 'boolean' => new BooleanSchema(),
-                    default => new StringSchema(),
+                    'string' => new StringSchema,
+                    'int', 'integer' => new IntegerSchema,
+                    'float', 'double' => new NumberSchema,
+                    'bool', 'boolean' => new BooleanSchema,
+                    default => new StringSchema,
                 };
             }
         }
@@ -291,7 +291,7 @@ class SchemaFactory
      */
     protected static function createStringSchema(array $jsonSchema): StringSchema
     {
-        $schema = new StringSchema();
+        $schema = new StringSchema;
 
         if (isset($jsonSchema['minLength'])) {
             $schema->minLength($jsonSchema['minLength']);
@@ -325,7 +325,7 @@ class SchemaFactory
      */
     protected static function createNumberSchema(array $jsonSchema): NumberSchema
     {
-        $schema = new NumberSchema();
+        $schema = new NumberSchema;
 
         if (isset($jsonSchema['minimum'])) {
             $schema->minimum($jsonSchema['minimum']);
@@ -359,7 +359,7 @@ class SchemaFactory
      */
     protected static function createIntegerSchema(array $jsonSchema): IntegerSchema
     {
-        $schema = new IntegerSchema();
+        $schema = new IntegerSchema;
 
         if (isset($jsonSchema['minimum'])) {
             $schema->minimum((int) $jsonSchema['minimum']);
@@ -393,7 +393,7 @@ class SchemaFactory
      */
     protected static function createBooleanSchema(array $jsonSchema): BooleanSchema
     {
-        $schema = new BooleanSchema();
+        $schema = new BooleanSchema;
 
         if (isset($jsonSchema['default'])) {
             $schema->default($jsonSchema['default']);
@@ -414,7 +414,7 @@ class SchemaFactory
     {
         $itemsSchema = isset($jsonSchema['items'])
             ? self::fromJsonSchema($jsonSchema['items'])
-            : new StringSchema();
+            : new StringSchema;
 
         $schema = new ArraySchema($itemsSchema);
 
@@ -441,7 +441,7 @@ class SchemaFactory
      */
     protected static function createObjectSchema(array $jsonSchema): ObjectSchema
     {
-        $schema = new ObjectSchema();
+        $schema = new ObjectSchema;
 
         if (isset($jsonSchema['properties'])) {
             foreach ($jsonSchema['properties'] as $name => $propertySchema) {

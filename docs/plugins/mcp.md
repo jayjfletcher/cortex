@@ -31,7 +31,12 @@ The Model Context Protocol (MCP) is an open protocol that enables LLM applicatio
 ```php
 // config/cortex.php
 'mcp' => [
-    'auto_connect' => false, // Connect on boot
+    // Discovery settings
+    'discovery' => [
+        'enabled' => true, // Set to false to disable auto-registration of servers from config
+    ],
+
+    'auto_connect' => false, // Connect all registered servers on boot
 
     'servers' => [
         // Local stdio server
@@ -69,6 +74,34 @@ The Model Context Protocol (MCP) is an open protocol that enables LLM applicatio
 ],
 ```
 
+### Discovery Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `discovery.enabled` | bool | `true` | When true, servers defined in config are automatically registered on boot |
+| `auto_connect` | bool | `false` | When true, all registered servers are connected automatically on boot |
+
+**When to disable discovery:**
+
+- When you want to programmatically register servers at runtime
+- When servers should be conditionally registered based on environment or tenant
+- When using only the extension point system for server registration
+
+```php
+// Disable auto-registration and register servers manually
+'mcp' => [
+    'discovery' => [
+        'enabled' => false,
+    ],
+    // servers are still defined but won't be auto-registered
+    'servers' => [...],
+],
+
+// Then register manually in a service provider:
+$registry = app(McpRegistryContract::class);
+$registry->register(StdioMcpServer::fromConfig('my-server', config('cortex.mcp.servers.my-server')));
+```
+
 ### HTTP Server Configuration Options
 
 | Option | Type | Default | Description |
@@ -86,6 +119,7 @@ Access MCP servers through the registry:
 
 ```php
 use JayI\Cortex\Plugins\Mcp\Contracts\McpRegistryContract;
+use JayI\Cortex\Plugins\Mcp\McpServerCollection;
 
 $registry = app(McpRegistryContract::class);
 
@@ -95,8 +129,14 @@ $server = $registry->get('filesystem');
 // Check existence
 $registry->has('filesystem'); // true
 
-// List all servers
+// List all servers (returns McpServerCollection)
 $servers = $registry->all();
+
+// Get specific servers (returns McpServerCollection)
+$subset = $registry->only(['filesystem', 'database']);
+
+// Get all except specified (returns McpServerCollection)
+$filtered = $registry->except(['deprecated-server']);
 
 // Connect all servers
 $registry->connectAll();
@@ -159,7 +199,7 @@ $server->connect();
 
 $response = (new ChatRequestBuilder())
     ->message('Use the available tools to help me')
-    ->tools($server->tools())
+    ->withTools($server->tools())
     ->send();
 ```
 

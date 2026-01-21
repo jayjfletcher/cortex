@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace JayI\Cortex\Plugins\Agent\Contracts;
 
-use Illuminate\Support\Collection;
+use JayI\Cortex\Plugins\Agent\AgentCollection;
 
 interface AgentRegistryContract
 {
@@ -25,10 +25,22 @@ interface AgentRegistryContract
 
     /**
      * Get all registered agents.
-     *
-     * @return Collection<string, AgentContract>
      */
-    public function all(): Collection;
+    public function all(): AgentCollection;
+
+    /**
+     * Get only the specified agents.
+     *
+     * @param  array<int, string>  $ids
+     */
+    public function only(array $ids): AgentCollection;
+
+    /**
+     * Get all agents except the specified ones.
+     *
+     * @param  array<int, string>  $ids
+     */
+    public function except(array $ids): AgentCollection;
 
     /**
      * Discover agents from directories.

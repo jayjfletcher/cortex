@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use JayI\Cortex\Plugins\Resilience\Exceptions\CircuitOpenException;
 use JayI\Cortex\Plugins\Resilience\ResiliencePolicy;
 use JayI\Cortex\Plugins\Resilience\Strategies\CircuitBreakerStrategy;
 use JayI\Cortex\Plugins\Resilience\Strategies\FallbackStrategy;

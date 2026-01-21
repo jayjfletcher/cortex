@@ -121,6 +121,7 @@ The registry manages multiple prompts with version support:
 
 ```php
 use JayI\Cortex\Plugins\Prompt\PromptRegistry;
+use JayI\Cortex\Plugins\Prompt\PromptCollection;
 
 $registry = new PromptRegistry();
 
@@ -136,8 +137,14 @@ $prompt = $registry->get('greeting');
 // Render directly
 $rendered = $registry->render('greeting', ['name' => 'Jane']);
 
-// List all prompts
+// List all prompts (returns PromptCollection)
 $all = $registry->all();
+
+// Get specific prompts (returns PromptCollection)
+$subset = $registry->only(['greeting', 'email']);
+
+// Get all except specified (returns PromptCollection)
+$filtered = $registry->except(['deprecated-prompt']);
 
 // List prompt IDs
 $ids = $registry->ids();

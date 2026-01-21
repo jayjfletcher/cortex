@@ -6,11 +6,11 @@ namespace JayI\Cortex\Plugins\Chat;
 
 use Illuminate\Contracts\Container\Container;
 use JayI\Cortex\Contracts\PluginManagerContract;
-use JayI\Cortex\Events\Concerns\DispatchesCortexEvents;
 use JayI\Cortex\Events\Chat\AfterChatReceive;
 use JayI\Cortex\Events\Chat\BeforeChatSend;
 use JayI\Cortex\Events\Chat\ChatError;
 use JayI\Cortex\Events\Chat\ChatStreamStarted;
+use JayI\Cortex\Events\Concerns\DispatchesCortexEvents;
 use JayI\Cortex\Plugins\Chat\Broadcasting\BroadcasterContract;
 use JayI\Cortex\Plugins\Chat\Contracts\ChatClientContract;
 use JayI\Cortex\Plugins\Provider\Contracts\ProviderContract;
@@ -20,6 +20,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse as SymfonyStreamedResponse
 class ChatClient implements ChatClientContract
 {
     use DispatchesCortexEvents;
+
     protected ?ProviderContract $provider = null;
 
     public function __construct(

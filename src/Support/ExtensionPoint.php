@@ -19,7 +19,7 @@ class ExtensionPoint implements ExtensionPointContract
         protected string $pointName,
         protected string $acceptedType,
     ) {
-        $this->extensions = new Collection();
+        $this->extensions = new Collection;
     }
 
     /**

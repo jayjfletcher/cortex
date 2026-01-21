@@ -18,6 +18,7 @@ use JayI\Cortex\Plugins\Guardrail\Data\GuardrailResult;
 class GuardrailPipeline implements GuardrailPipelineContract
 {
     use DispatchesCortexEvents;
+
     /** @var array<string, GuardrailContract> */
     protected array $guardrails = [];
 

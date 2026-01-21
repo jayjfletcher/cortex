@@ -7,8 +7,6 @@ namespace JayI\Cortex\Plugins\Workflow;
 use JayI\Cortex\Events\Concerns\DispatchesCortexEvents;
 use JayI\Cortex\Events\Workflow\WorkflowCompleted;
 use JayI\Cortex\Events\Workflow\WorkflowFailed;
-use JayI\Cortex\Events\Workflow\WorkflowNodeEntered;
-use JayI\Cortex\Events\Workflow\WorkflowNodeExited;
 use JayI\Cortex\Events\Workflow\WorkflowPaused;
 use JayI\Cortex\Events\Workflow\WorkflowResumed;
 use JayI\Cortex\Events\Workflow\WorkflowStarted;
@@ -36,7 +34,7 @@ class PersistentWorkflowExecutor implements WorkflowExecutorContract
     public function execute(WorkflowContract $workflow, array $input = [], ?WorkflowContext $context = null): WorkflowResult
     {
         $definition = $workflow->definition();
-        $context ??= new WorkflowContext();
+        $context ??= new WorkflowContext;
 
         // Create initial state
         $state = WorkflowState::start(

@@ -23,6 +23,7 @@ use JayI\Cortex\Plugins\Workflow\Contracts\WorkflowExecutorContract;
 class WorkflowExecutor implements WorkflowExecutorContract
 {
     use DispatchesCortexEvents;
+
     protected int $maxSteps = 1000;
 
     /**

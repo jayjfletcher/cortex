@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use JayI\Cortex\Plugins\Schema\Schema;
-use JayI\Cortex\Plugins\Schema\SchemaFactory;
 use JayI\Cortex\Plugins\Schema\Types\ArraySchema;
 use JayI\Cortex\Plugins\Schema\Types\BooleanSchema;
 use JayI\Cortex\Plugins\Schema\Types\EnumSchema;

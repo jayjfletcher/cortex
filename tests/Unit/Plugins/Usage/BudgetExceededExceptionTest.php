@@ -10,7 +10,7 @@ use JayI\Cortex\Plugins\Usage\Exceptions\BudgetExceededException;
 
 describe('BudgetExceededException', function () {
     it('creates with default message', function () {
-        $exception = new BudgetExceededException();
+        $exception = new BudgetExceededException;
 
         expect($exception->getMessage())->toBe('Budget limit exceeded');
         expect($exception->exceededBudgets)->toBe([]);

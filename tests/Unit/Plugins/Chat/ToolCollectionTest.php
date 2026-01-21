@@ -6,17 +6,25 @@ use JayI\Cortex\Plugins\Chat\ToolCollection;
 
 describe('ToolCollection', function () {
     it('creates empty collection', function () {
-        $collection = new ToolCollection();
+        $collection = new ToolCollection;
 
         expect($collection->count())->toBe(0);
     });
 
     it('creates collection with tools', function () {
-        $tool1 = new class {
-            public function name(): string { return 'search'; }
+        $tool1 = new class
+        {
+            public function name(): string
+            {
+                return 'search';
+            }
         };
-        $tool2 = new class {
-            public function name(): string { return 'calculate'; }
+        $tool2 = new class
+        {
+            public function name(): string
+            {
+                return 'calculate';
+            }
         };
 
         $collection = new ToolCollection([$tool1, $tool2]);
@@ -34,8 +42,12 @@ describe('ToolCollection', function () {
     });
 
     it('creates via static make method', function () {
-        $tool = new class {
-            public function name(): string { return 'test'; }
+        $tool = new class
+        {
+            public function name(): string
+            {
+                return 'test';
+            }
         };
 
         $collection = ToolCollection::make([$tool]);
@@ -44,26 +56,34 @@ describe('ToolCollection', function () {
     });
 
     it('adds object tool', function () {
-        $tool = new class {
-            public function name(): string { return 'test'; }
+        $tool = new class
+        {
+            public function name(): string
+            {
+                return 'test';
+            }
         };
 
-        $collection = new ToolCollection();
+        $collection = new ToolCollection;
         $collection->add($tool);
 
         expect($collection->has('test'))->toBeTrue();
     });
 
     it('adds array tool', function () {
-        $collection = new ToolCollection();
+        $collection = new ToolCollection;
         $collection->add(['name' => 'search', 'description' => 'Search']);
 
         expect($collection->has('search'))->toBeTrue();
     });
 
     it('removes tool', function () {
-        $tool = new class {
-            public function name(): string { return 'test'; }
+        $tool = new class
+        {
+            public function name(): string
+            {
+                return 'test';
+            }
         };
 
         $collection = new ToolCollection([$tool]);
@@ -73,9 +93,17 @@ describe('ToolCollection', function () {
     });
 
     it('gets tool by name', function () {
-        $tool = new class {
-            public function name(): string { return 'search'; }
-            public function value(): string { return 'search-tool'; }
+        $tool = new class
+        {
+            public function name(): string
+            {
+                return 'search';
+            }
+
+            public function value(): string
+            {
+                return 'search-tool';
+            }
         };
 
         $collection = new ToolCollection([$tool]);
@@ -84,14 +112,18 @@ describe('ToolCollection', function () {
     });
 
     it('returns null for missing tool', function () {
-        $collection = new ToolCollection();
+        $collection = new ToolCollection;
 
         expect($collection->get('nonexistent'))->toBeNull();
     });
 
     it('checks if tool exists', function () {
-        $tool = new class {
-            public function name(): string { return 'search'; }
+        $tool = new class
+        {
+            public function name(): string
+            {
+                return 'search';
+            }
         };
 
         $collection = new ToolCollection([$tool]);
@@ -101,11 +133,19 @@ describe('ToolCollection', function () {
     });
 
     it('gets tool names', function () {
-        $tool1 = new class {
-            public function name(): string { return 'search'; }
+        $tool1 = new class
+        {
+            public function name(): string
+            {
+                return 'search';
+            }
         };
-        $tool2 = new class {
-            public function name(): string { return 'calculate'; }
+        $tool2 = new class
+        {
+            public function name(): string
+            {
+                return 'calculate';
+            }
         };
 
         $collection = new ToolCollection([$tool1, $tool2]);
@@ -114,9 +154,15 @@ describe('ToolCollection', function () {
     });
 
     it('converts to tool definitions', function () {
-        $tool = new class {
-            public function name(): string { return 'search'; }
-            public function toDefinition(): array {
+        $tool = new class
+        {
+            public function name(): string
+            {
+                return 'search';
+            }
+
+            public function toDefinition(): array
+            {
                 return ['name' => 'search', 'description' => 'Search tool'];
             }
         };
@@ -139,8 +185,12 @@ describe('ToolCollection', function () {
     });
 
     it('is iterable', function () {
-        $tool = new class {
-            public function name(): string { return 'test'; }
+        $tool = new class
+        {
+            public function name(): string
+            {
+                return 'test';
+            }
         };
 
         $collection = new ToolCollection([$tool]);
@@ -155,8 +205,12 @@ describe('ToolCollection', function () {
     });
 
     it('converts to array', function () {
-        $tool = new class {
-            public function name(): string { return 'test'; }
+        $tool = new class
+        {
+            public function name(): string
+            {
+                return 'test';
+            }
         };
 
         $collection = new ToolCollection([$tool]);
@@ -166,11 +220,19 @@ describe('ToolCollection', function () {
     });
 
     it('merges collections', function () {
-        $tool1 = new class {
-            public function name(): string { return 'first'; }
+        $tool1 = new class
+        {
+            public function name(): string
+            {
+                return 'first';
+            }
         };
-        $tool2 = new class {
-            public function name(): string { return 'second'; }
+        $tool2 = new class
+        {
+            public function name(): string
+            {
+                return 'second';
+            }
         };
 
         $collection1 = new ToolCollection([$tool1]);

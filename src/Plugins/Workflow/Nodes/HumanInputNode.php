@@ -45,7 +45,7 @@ class HumanInputNode implements NodeContract
                 if (! $validation->isValid()) {
                     $errors = array_map(fn ($e) => $e->message, $validation->errors);
 
-                    return NodeResult::failure('Invalid human input: ' . implode(', ', $errors));
+                    return NodeResult::failure('Invalid human input: '.implode(', ', $errors));
                 }
             }
 

@@ -10,13 +10,12 @@ use Illuminate\Support\Collection;
 use JayI\Cortex\Plugins\Chat\ChatRequest;
 use JayI\Cortex\Plugins\Chat\ChatResponse;
 use JayI\Cortex\Plugins\Chat\MessageRole;
+use JayI\Cortex\Plugins\Chat\Messages\Message;
+use JayI\Cortex\Plugins\Chat\Messages\ToolUseContent;
 use JayI\Cortex\Plugins\Chat\StopReason;
 use JayI\Cortex\Plugins\Chat\StreamChunk;
 use JayI\Cortex\Plugins\Chat\StreamedResponse;
 use JayI\Cortex\Plugins\Chat\Usage;
-use JayI\Cortex\Plugins\Chat\Messages\Message;
-use JayI\Cortex\Plugins\Chat\Messages\TextContent;
-use JayI\Cortex\Plugins\Chat\Messages\ToolUseContent;
 use JayI\Cortex\Plugins\Provider\Contracts\ProviderContract;
 use JayI\Cortex\Plugins\Provider\Model;
 use JayI\Cortex\Plugins\Provider\ProviderCapabilities;
@@ -55,7 +54,7 @@ class FakeProvider implements ProviderContract
      */
     public static function fake(array $responses = []): static
     {
-        $fake = new static();
+        $fake = new static;
 
         foreach ($responses as $response) {
             $fake->addResponse($response);
@@ -69,7 +68,7 @@ class FakeProvider implements ProviderContract
      */
     public static function text(string $content): static
     {
-        $fake = new static();
+        $fake = new static;
         $fake->respondWith(fn () => ChatResponse::fromText($content));
 
         return $fake;
@@ -82,7 +81,7 @@ class FakeProvider implements ProviderContract
      */
     public static function withToolCalls(array $toolCalls): static
     {
-        $fake = new static();
+        $fake = new static;
         $fake->respondWith(function () use ($toolCalls) {
             $content = [];
             foreach ($toolCalls as $index => $call) {
@@ -108,8 +107,6 @@ class FakeProvider implements ProviderContract
 
     /**
      * Queue a response to be returned.
-     *
-     * @param  ChatResponse|StreamedResponse|Closure|string  $response
      */
     public function addResponse(ChatResponse|StreamedResponse|Closure|string $response): static
     {

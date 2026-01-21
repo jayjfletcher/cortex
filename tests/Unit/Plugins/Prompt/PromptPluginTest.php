@@ -173,7 +173,7 @@ describe('Prompt', function () {
 
 describe('PromptRegistry', function () {
     it('registers and retrieves prompt', function () {
-        $registry = new PromptRegistry();
+        $registry = new PromptRegistry;
         $prompt = new Prompt('test', 'Test template');
 
         $registry->register($prompt);
@@ -182,7 +182,7 @@ describe('PromptRegistry', function () {
     });
 
     it('checks if prompt exists', function () {
-        $registry = new PromptRegistry();
+        $registry = new PromptRegistry;
 
         expect($registry->has('nonexistent'))->toBeFalse();
 
@@ -192,14 +192,14 @@ describe('PromptRegistry', function () {
     });
 
     it('throws exception for missing prompt', function () {
-        $registry = new PromptRegistry();
+        $registry = new PromptRegistry;
 
         expect(fn () => $registry->get('nonexistent'))
             ->toThrow(PromptNotFoundException::class);
     });
 
     it('returns all prompts', function () {
-        $registry = new PromptRegistry();
+        $registry = new PromptRegistry;
         $registry->register(new Prompt('prompt1', 'Template 1'));
         $registry->register(new Prompt('prompt2', 'Template 2'));
 
@@ -211,7 +211,7 @@ describe('PromptRegistry', function () {
     });
 
     it('supports versioned prompts', function () {
-        $registry = new PromptRegistry();
+        $registry = new PromptRegistry;
         $registry->register(new Prompt('greeting', 'Hello v1', version: '1.0.0'));
         $registry->register(new Prompt('greeting', 'Hello v2', version: '2.0.0'));
 
@@ -225,7 +225,7 @@ describe('PromptRegistry', function () {
     });
 
     it('lists all prompt ids', function () {
-        $registry = new PromptRegistry();
+        $registry = new PromptRegistry;
         $registry->register(new Prompt('prompt1', 'Template 1'));
         $registry->register(new Prompt('prompt2', 'Template 2'));
 
@@ -236,7 +236,7 @@ describe('PromptRegistry', function () {
     });
 
     it('returns versions for a prompt', function () {
-        $registry = new PromptRegistry();
+        $registry = new PromptRegistry;
         $registry->register(new Prompt('greeting', 'Hello v1', version: '1.0.0'));
         $registry->register(new Prompt('greeting', 'Hello v2', version: '2.0.0'));
 
@@ -248,7 +248,7 @@ describe('PromptRegistry', function () {
     });
 
     it('returns latest version', function () {
-        $registry = new PromptRegistry();
+        $registry = new PromptRegistry;
         $registry->register(new Prompt('greeting', 'Hello v1', version: '1.0.0'));
         $registry->register(new Prompt('greeting', 'Hello v2', version: '2.0.0'));
 
@@ -258,7 +258,7 @@ describe('PromptRegistry', function () {
     });
 
     it('returns all versions of a prompt', function () {
-        $registry = new PromptRegistry();
+        $registry = new PromptRegistry;
         $registry->register(new Prompt('greeting', 'Hello v1', version: '1.0.0'));
         $registry->register(new Prompt('greeting', 'Hello v2', version: '2.0.0'));
 
@@ -266,11 +266,58 @@ describe('PromptRegistry', function () {
 
         expect($allVersions->count())->toBe(2);
     });
+
+    it('returns only specified prompts', function () {
+        $registry = new PromptRegistry;
+        $registry->register(new Prompt('prompt1', 'Template 1'));
+        $registry->register(new Prompt('prompt2', 'Template 2'));
+        $registry->register(new Prompt('prompt3', 'Template 3'));
+
+        $only = $registry->only(['prompt1', 'prompt3']);
+
+        expect($only->count())->toBe(2);
+        expect($only->has('prompt1'))->toBeTrue();
+        expect($only->has('prompt3'))->toBeTrue();
+        expect($only->has('prompt2'))->toBeFalse();
+    });
+
+    it('returns all prompts except specified ones', function () {
+        $registry = new PromptRegistry;
+        $registry->register(new Prompt('prompt1', 'Template 1'));
+        $registry->register(new Prompt('prompt2', 'Template 2'));
+        $registry->register(new Prompt('prompt3', 'Template 3'));
+
+        $except = $registry->except(['prompt2']);
+
+        expect($except->count())->toBe(2);
+        expect($except->has('prompt1'))->toBeTrue();
+        expect($except->has('prompt3'))->toBeTrue();
+        expect($except->has('prompt2'))->toBeFalse();
+    });
+
+    it('returns empty collection when only specified non-existent ids', function () {
+        $registry = new PromptRegistry;
+        $registry->register(new Prompt('prompt1', 'Template 1'));
+
+        $only = $registry->only(['nonexistent']);
+
+        expect($only->count())->toBe(0);
+    });
+
+    it('returns all prompts when except specified non-existent ids', function () {
+        $registry = new PromptRegistry;
+        $registry->register(new Prompt('prompt1', 'Template 1'));
+        $registry->register(new Prompt('prompt2', 'Template 2'));
+
+        $except = $registry->except(['nonexistent']);
+
+        expect($except->count())->toBe(2);
+    });
 });
 
 describe('FilePromptLoader', function () {
     it('is instantiated with registry', function () {
-        $registry = new PromptRegistry();
+        $registry = new PromptRegistry;
         $loader = new FilePromptLoader($registry);
 
         expect($loader)->toBeInstanceOf(FilePromptLoader::class);
@@ -287,7 +334,7 @@ describe('Prompt Contract', function () {
 
 describe('PromptRegistry Contract', function () {
     it('implements PromptRegistryContract', function () {
-        $registry = new PromptRegistry();
+        $registry = new PromptRegistry;
 
         expect($registry)->toBeInstanceOf(PromptRegistryContract::class);
     });
@@ -312,37 +359,37 @@ describe('PromptNotFoundException', function () {
 
 describe('PromptPlugin', function () {
     it('implements PluginContract', function () {
-        $plugin = new PromptPlugin();
+        $plugin = new PromptPlugin;
 
         expect($plugin)->toBeInstanceOf(PluginContract::class);
     });
 
     it('has correct id', function () {
-        $plugin = new PromptPlugin();
+        $plugin = new PromptPlugin;
 
         expect($plugin->id())->toBe('prompt');
     });
 
     it('has correct name', function () {
-        $plugin = new PromptPlugin();
+        $plugin = new PromptPlugin;
 
         expect($plugin->name())->toBe('Prompt Plugin');
     });
 
     it('has correct version', function () {
-        $plugin = new PromptPlugin();
+        $plugin = new PromptPlugin;
 
         expect($plugin->version())->toBe('1.0.0');
     });
 
     it('has no dependencies', function () {
-        $plugin = new PromptPlugin();
+        $plugin = new PromptPlugin;
 
         expect($plugin->dependencies())->toBe([]);
     });
 
     it('provides prompt capabilities', function () {
-        $plugin = new PromptPlugin();
+        $plugin = new PromptPlugin;
 
         expect($plugin->provides())->toContain('prompt');
         expect($plugin->provides())->toContain('prompt-registry');
@@ -359,7 +406,7 @@ describe('PromptPlugin', function () {
             ->with(PromptRegistryContract::class, PromptRegistry::class)
             ->once();
 
-        $plugin = new PromptPlugin();
+        $plugin = new PromptPlugin;
         $plugin->register($manager);
     });
 
@@ -379,7 +426,7 @@ describe('PromptPlugin', function () {
             ->with('cortex.prompt.discovery.enabled', true)
             ->andReturn(false);
 
-        $plugin = new PromptPlugin();
+        $plugin = new PromptPlugin;
         $plugin->boot($manager);
 
         expect(true)->toBeTrue(); // Add assertion to avoid risky test
@@ -410,7 +457,7 @@ describe('PromptPlugin', function () {
             ->with('cortex.prompt.discovery.paths', [])
             ->andReturn([]);
 
-        $plugin = new PromptPlugin();
+        $plugin = new PromptPlugin;
         $plugin->boot($manager);
 
         expect(true)->toBeTrue(); // Add assertion to avoid risky test

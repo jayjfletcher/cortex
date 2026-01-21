@@ -4,21 +4,25 @@ declare(strict_types=1);
 
 namespace JayI\Cortex\Plugins\Agent;
 
-use Closure;
 use Illuminate\Contracts\Container\Container;
 use JayI\Cortex\Plugins\Agent\Contracts\AgentContract;
 use JayI\Cortex\Plugins\Agent\Contracts\AgentLoopContract;
 use JayI\Cortex\Plugins\Agent\Contracts\RetrieverContract;
 use JayI\Cortex\Plugins\Agent\Loops\SimpleAgentLoop;
 use JayI\Cortex\Plugins\Agent\Memory\MemoryContract;
+use JayI\Cortex\Plugins\Mcp\Contracts\McpServerContract;
+use JayI\Cortex\Plugins\Mcp\McpServerCollection;
 use JayI\Cortex\Plugins\Tool\Tool;
 use JayI\Cortex\Plugins\Tool\ToolCollection;
+use JayI\Cortex\Support\Concerns\RequiresPlugins;
 
 /**
  * Fluent builder for creating agents.
  */
 class Agent implements AgentContract
 {
+    use RequiresPlugins;
+
     protected string $agentId;
 
     protected string $agentName = '';
@@ -28,6 +32,8 @@ class Agent implements AgentContract
     protected string $agentSystemPrompt = '';
 
     protected ToolCollection $agentTools;
+
+    protected McpServerCollection $agentMcpServers;
 
     protected ?string $agentModel = null;
 
@@ -48,6 +54,7 @@ class Agent implements AgentContract
     public function __construct()
     {
         $this->agentTools = ToolCollection::make([]);
+        $this->agentMcpServers = McpServerCollection::make([]);
     }
 
     /**
@@ -55,7 +62,7 @@ class Agent implements AgentContract
      */
     public static function make(string $id): static
     {
-        $agent = new static();
+        $agent = new static;
         $agent->agentId = $id;
 
         return $agent;
@@ -95,9 +102,13 @@ class Agent implements AgentContract
      * Set the tools.
      *
      * @param  array<int, Tool>|ToolCollection  $tools
+     *
+     * @throws \JayI\Cortex\Exceptions\PluginException
      */
     public function withTools(array|ToolCollection $tools): static
     {
+        $this->ensurePluginEnabled('tool');
+
         if (is_array($tools)) {
             $this->agentTools = ToolCollection::make($tools);
         } else {
@@ -109,10 +120,48 @@ class Agent implements AgentContract
 
     /**
      * Add a tool.
+     *
+     * @throws \JayI\Cortex\Exceptions\PluginException
      */
     public function addTool(Tool $tool): static
     {
+        $this->ensurePluginEnabled('tool');
+
         $this->agentTools = $this->agentTools->add($tool);
+
+        return $this;
+    }
+
+    /**
+     * Set the MCP servers.
+     *
+     * @param  array<int, McpServerContract|string>|McpServerCollection  $servers
+     *
+     * @throws \JayI\Cortex\Exceptions\PluginException
+     */
+    public function withMcpServers(array|McpServerCollection $servers): static
+    {
+        $this->ensurePluginEnabled('mcp');
+
+        if (is_array($servers)) {
+            $this->agentMcpServers = McpServerCollection::make($servers);
+        } else {
+            $this->agentMcpServers = $servers;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Add an MCP server.
+     *
+     * @throws \JayI\Cortex\Exceptions\PluginException
+     */
+    public function addMcpServer(McpServerContract|string $server): static
+    {
+        $this->ensurePluginEnabled('mcp');
+
+        $this->agentMcpServers = $this->agentMcpServers->add($server);
 
         return $this;
     }
@@ -240,6 +289,14 @@ class Agent implements AgentContract
     /**
      * {@inheritdoc}
      */
+    public function mcpServers(): McpServerCollection
+    {
+        return $this->agentMcpServers;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function model(): ?string
     {
         return $this->agentModel;
@@ -274,7 +331,7 @@ class Agent implements AgentContract
      */
     public function run(string|array $input, ?AgentContext $context = null): AgentResponse
     {
-        $context ??= new AgentContext();
+        $context ??= new AgentContext;
         $loop = $this->resolveLoop();
 
         // Augment input with retrieved context if retriever is configured
@@ -338,6 +395,14 @@ class Agent implements AgentContract
         PendingAgentRun::dispatch($this, $input, $context);
 
         return $pendingRun;
+    }
+
+    /**
+     * Convert this agent to a tool that can be used by other agents.
+     */
+    public function asTool(): AgentTool
+    {
+        return AgentTool::make($this);
     }
 
     /**

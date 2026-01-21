@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use JayI\Cortex\Support\ExtensionPoint;
 use JayI\Cortex\Plugins\Tool\Contracts\ToolContract;
+use JayI\Cortex\Support\ExtensionPoint;
 
 interface TestExtensionInterface {}
 
@@ -22,7 +22,7 @@ describe('ExtensionPoint', function () {
     it('registers valid extensions', function () {
         $point = ExtensionPoint::make('test_point', TestExtensionInterface::class);
 
-        $extension = new TestExtension();
+        $extension = new TestExtension;
         $point->register($extension);
 
         expect($point->all()->count())->toBe(1);
@@ -32,9 +32,9 @@ describe('ExtensionPoint', function () {
     it('registers multiple extensions', function () {
         $point = ExtensionPoint::make('test_point', TestExtensionInterface::class);
 
-        $ext1 = new TestExtension();
-        $ext2 = new TestExtension();
-        $ext3 = new TestExtension();
+        $ext1 = new TestExtension;
+        $ext2 = new TestExtension;
+        $ext3 = new TestExtension;
 
         $point->register($ext1);
         $point->register($ext2);
@@ -46,7 +46,7 @@ describe('ExtensionPoint', function () {
     it('throws exception for invalid extension type', function () {
         $point = ExtensionPoint::make('test_point', TestExtensionInterface::class);
 
-        $invalidExtension = new InvalidExtension();
+        $invalidExtension = new InvalidExtension;
 
         expect(fn () => $point->register($invalidExtension))
             ->toThrow(InvalidArgumentException::class);

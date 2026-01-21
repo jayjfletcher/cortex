@@ -80,7 +80,7 @@ class ParallelNode implements NodeContract
     protected function mergeAll(array $results, array $errors): NodeResult
     {
         if (! empty($errors)) {
-            return NodeResult::failure('Not all parallel nodes succeeded: ' . json_encode($errors));
+            return NodeResult::failure('Not all parallel nodes succeeded: '.json_encode($errors));
         }
 
         $merged = [];
@@ -102,7 +102,7 @@ class ParallelNode implements NodeContract
         $successful = array_filter($results, fn ($r) => $r->success);
 
         if (empty($successful)) {
-            return NodeResult::failure('No parallel nodes succeeded: ' . json_encode($errors));
+            return NodeResult::failure('No parallel nodes succeeded: '.json_encode($errors));
         }
 
         $merged = [];

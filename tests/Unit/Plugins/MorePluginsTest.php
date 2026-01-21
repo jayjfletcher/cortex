@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-use Illuminate\Contracts\Cache\Repository as CacheRepository;
-use Illuminate\Contracts\Container\Container;
 use JayI\Cortex\Contracts\PluginManagerContract;
 use JayI\Cortex\Plugins\Mcp\Contracts\McpRegistryContract;
 use JayI\Cortex\Plugins\Mcp\McpPlugin;
@@ -14,8 +12,6 @@ use JayI\Cortex\Plugins\Usage\BudgetManager;
 use JayI\Cortex\Plugins\Usage\Contracts\BudgetManagerContract;
 use JayI\Cortex\Plugins\Usage\Contracts\CostEstimatorContract;
 use JayI\Cortex\Plugins\Usage\Contracts\UsageTrackerContract;
-use JayI\Cortex\Plugins\Usage\Data\Budget;
-use JayI\Cortex\Plugins\Usage\Data\BudgetPeriod;
 use JayI\Cortex\Plugins\Usage\Estimators\AnthropicCostEstimator;
 use JayI\Cortex\Plugins\Usage\InMemoryUsageTracker;
 use JayI\Cortex\Plugins\Usage\UsagePlugin;
@@ -26,7 +22,6 @@ use JayI\Cortex\Plugins\Workflow\Contracts\WorkflowStateRepositoryContract;
 use JayI\Cortex\Plugins\Workflow\PersistentWorkflowExecutor;
 use JayI\Cortex\Plugins\Workflow\Repositories\CacheWorkflowStateRepository;
 use JayI\Cortex\Plugins\Workflow\Repositories\DatabaseWorkflowStateRepository;
-use JayI\Cortex\Plugins\Workflow\WorkflowExecutor;
 use JayI\Cortex\Plugins\Workflow\WorkflowPlugin;
 use JayI\Cortex\Plugins\Workflow\WorkflowRegistry;
 use JayI\Cortex\Support\ExtensionPoint;

@@ -4,37 +4,37 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Event;
-use JayI\Cortex\Events\CortexEvent;
-use JayI\Cortex\Events\Concerns\DispatchesCortexEvents;
-use JayI\Cortex\Events\Provider\ProviderRegistered;
-use JayI\Cortex\Events\Provider\BeforeProviderRequest;
-use JayI\Cortex\Events\Provider\AfterProviderResponse;
-use JayI\Cortex\Events\Provider\ProviderError;
-use JayI\Cortex\Events\Provider\ProviderRateLimited;
-use JayI\Cortex\Events\Chat\BeforeChatSend;
-use JayI\Cortex\Events\Chat\AfterChatReceive;
-use JayI\Cortex\Events\Chat\ChatError;
-use JayI\Cortex\Events\Chat\ChatStreamStarted;
-use JayI\Cortex\Events\Tool\ToolRegistered;
-use JayI\Cortex\Events\Tool\BeforeToolExecution;
-use JayI\Cortex\Events\Tool\AfterToolExecution;
-use JayI\Cortex\Events\Tool\ToolError;
-use JayI\Cortex\Events\Agent\AgentRunStarted;
-use JayI\Cortex\Events\Agent\AgentIterationStarted;
 use JayI\Cortex\Events\Agent\AgentIterationCompleted;
-use JayI\Cortex\Events\Agent\AgentToolCalled;
+use JayI\Cortex\Events\Agent\AgentIterationStarted;
+use JayI\Cortex\Events\Agent\AgentMaxIterationsReached;
 use JayI\Cortex\Events\Agent\AgentRunCompleted;
 use JayI\Cortex\Events\Agent\AgentRunFailed;
-use JayI\Cortex\Events\Agent\AgentMaxIterationsReached;
-use JayI\Cortex\Events\Workflow\WorkflowStarted;
+use JayI\Cortex\Events\Agent\AgentRunStarted;
+use JayI\Cortex\Events\Agent\AgentToolCalled;
+use JayI\Cortex\Events\Chat\AfterChatReceive;
+use JayI\Cortex\Events\Chat\BeforeChatSend;
+use JayI\Cortex\Events\Chat\ChatError;
+use JayI\Cortex\Events\Chat\ChatStreamStarted;
+use JayI\Cortex\Events\Concerns\DispatchesCortexEvents;
+use JayI\Cortex\Events\CortexEvent;
+use JayI\Cortex\Events\Guardrail\GuardrailBlocked;
+use JayI\Cortex\Events\Guardrail\GuardrailChecked;
+use JayI\Cortex\Events\Provider\AfterProviderResponse;
+use JayI\Cortex\Events\Provider\BeforeProviderRequest;
+use JayI\Cortex\Events\Provider\ProviderError;
+use JayI\Cortex\Events\Provider\ProviderRateLimited;
+use JayI\Cortex\Events\Provider\ProviderRegistered;
+use JayI\Cortex\Events\Tool\AfterToolExecution;
+use JayI\Cortex\Events\Tool\BeforeToolExecution;
+use JayI\Cortex\Events\Tool\ToolError;
+use JayI\Cortex\Events\Tool\ToolRegistered;
 use JayI\Cortex\Events\Workflow\WorkflowCompleted;
 use JayI\Cortex\Events\Workflow\WorkflowFailed;
-use JayI\Cortex\Events\Workflow\WorkflowPaused;
-use JayI\Cortex\Events\Workflow\WorkflowResumed;
 use JayI\Cortex\Events\Workflow\WorkflowNodeEntered;
 use JayI\Cortex\Events\Workflow\WorkflowNodeExited;
-use JayI\Cortex\Events\Guardrail\GuardrailChecked;
-use JayI\Cortex\Events\Guardrail\GuardrailBlocked;
+use JayI\Cortex\Events\Workflow\WorkflowPaused;
+use JayI\Cortex\Events\Workflow\WorkflowResumed;
+use JayI\Cortex\Events\Workflow\WorkflowStarted;
 
 describe('CortexEvent Base Class', function () {
     it('creates event with timestamp', function () {
@@ -45,7 +45,8 @@ describe('CortexEvent Base Class', function () {
     });
 
     it('creates event with tenant id', function () {
-        $event = new class('tenant-123') extends CortexEvent {
+        $event = new class('tenant-123') extends CortexEvent
+        {
             public function __construct(?string $tenantId = null)
             {
                 parent::__construct($tenantId);
@@ -56,7 +57,8 @@ describe('CortexEvent Base Class', function () {
     });
 
     it('creates event with correlation id', function () {
-        $event = new class(null, 'corr-123') extends CortexEvent {
+        $event = new class(null, 'corr-123') extends CortexEvent
+        {
             public function __construct(?string $tenantId = null, ?string $correlationId = null)
             {
                 parent::__construct($tenantId, $correlationId);
@@ -67,7 +69,8 @@ describe('CortexEvent Base Class', function () {
     });
 
     it('creates event with metadata', function () {
-        $event = new class(null, null, ['key' => 'value']) extends CortexEvent {
+        $event = new class(null, null, ['key' => 'value']) extends CortexEvent
+        {
             public function __construct(?string $tenantId = null, ?string $correlationId = null, array $metadata = [])
             {
                 parent::__construct($tenantId, $correlationId, $metadata);
@@ -86,7 +89,8 @@ describe('DispatchesCortexEvents Trait', function () {
     });
 
     it('dispatches events when enabled', function () {
-        $dispatcher = new class {
+        $dispatcher = new class
+        {
             use DispatchesCortexEvents;
 
             public function dispatch(CortexEvent $event): void
@@ -104,7 +108,8 @@ describe('DispatchesCortexEvents Trait', function () {
     it('does not dispatch when events are disabled', function () {
         Config::set('cortex.events.enabled', false);
 
-        $dispatcher = new class {
+        $dispatcher = new class
+        {
             use DispatchesCortexEvents;
 
             public function dispatch(CortexEvent $event): void
@@ -122,7 +127,8 @@ describe('DispatchesCortexEvents Trait', function () {
     it('does not dispatch specific disabled events', function () {
         Config::set('cortex.events.disabled', [BeforeChatSend::class]);
 
-        $dispatcher = new class {
+        $dispatcher = new class
+        {
             use DispatchesCortexEvents;
 
             public function dispatch(CortexEvent $event): void

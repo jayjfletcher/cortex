@@ -12,7 +12,6 @@ use JayI\Cortex\Plugins\Chat\Broadcasting\ChatStreamChunkEvent;
 use JayI\Cortex\Plugins\Chat\Broadcasting\ChatStreamCompleteEvent;
 use JayI\Cortex\Plugins\Chat\Broadcasting\EchoBroadcaster;
 use JayI\Cortex\Plugins\Chat\ChatResponse;
-use JayI\Cortex\Plugins\Chat\Messages\Message;
 use JayI\Cortex\Plugins\Chat\Messages\MessageCollection;
 use JayI\Cortex\Plugins\Chat\StopReason;
 use JayI\Cortex\Plugins\Chat\StreamChunk;

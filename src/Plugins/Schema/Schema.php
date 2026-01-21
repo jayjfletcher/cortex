@@ -40,7 +40,7 @@ abstract class Schema
      */
     public static function string(): StringSchema
     {
-        return new StringSchema();
+        return new StringSchema;
     }
 
     /**
@@ -48,7 +48,7 @@ abstract class Schema
      */
     public static function number(): NumberSchema
     {
-        return new NumberSchema();
+        return new NumberSchema;
     }
 
     /**
@@ -56,7 +56,7 @@ abstract class Schema
      */
     public static function integer(): IntegerSchema
     {
-        return new IntegerSchema();
+        return new IntegerSchema;
     }
 
     /**
@@ -64,7 +64,7 @@ abstract class Schema
      */
     public static function boolean(): BooleanSchema
     {
-        return new BooleanSchema();
+        return new BooleanSchema;
     }
 
     /**
@@ -80,7 +80,7 @@ abstract class Schema
      */
     public static function object(): ObjectSchema
     {
-        return new ObjectSchema();
+        return new ObjectSchema;
     }
 
     /**

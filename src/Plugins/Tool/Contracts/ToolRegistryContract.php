@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace JayI\Cortex\Plugins\Tool\Contracts;
 
-use Illuminate\Support\Collection;
 use JayI\Cortex\Plugins\Tool\ToolCollection;
 
 interface ToolRegistryContract
@@ -28,10 +27,22 @@ interface ToolRegistryContract
 
     /**
      * Get all registered tools.
-     *
-     * @return Collection<string, ToolContract>
      */
-    public function all(): Collection;
+    public function all(): ToolCollection;
+
+    /**
+     * Get only the specified tools.
+     *
+     * @param  array<int, string>  $names
+     */
+    public function only(array $names): ToolCollection;
+
+    /**
+     * Get all tools except the specified ones.
+     *
+     * @param  array<int, string>  $names
+     */
+    public function except(array $names): ToolCollection;
 
     /**
      * Create a collection with specific tools.

@@ -86,7 +86,7 @@ $builder
     ->maxTokens(int $maxTokens)
 
     // Add tools
-    ->tools(ToolCollection|array $tools)
+    ->withTools(ToolCollection|array $tools)
 
     // Set response schema (for structured output)
     ->responseSchema(Schema $schema)
@@ -463,3 +463,35 @@ try {
     // Handle error
 }
 ```
+
+### Plugin Dependency Exceptions
+
+The `ChatRequestBuilder` requires specific plugins to be enabled for certain methods. A `PluginException` is thrown if the required plugin is not registered:
+
+```php
+use JayI\Cortex\Plugins\Chat\ChatRequestBuilder;
+use JayI\Cortex\Exceptions\PluginException;
+
+// Requires 'tool' plugin to be enabled
+try {
+    $builder = new ChatRequestBuilder();
+    $builder->withTools($tools);  // Throws if tool plugin disabled
+} catch (PluginException $e) {
+    // "Plugin [tool] is disabled."
+}
+
+// Requires 'mcp' plugin to be enabled
+try {
+    $builder = new ChatRequestBuilder();
+    $builder->withMcpServers($servers);  // Throws if mcp plugin disabled
+} catch (PluginException $e) {
+    // "Plugin [mcp] is disabled."
+}
+```
+
+**Methods requiring `tool` plugin:**
+- `withTools()`
+
+**Methods requiring `mcp` plugin:**
+- `withMcpServers()`
+- `addMcpServer()`

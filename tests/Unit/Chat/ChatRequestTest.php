@@ -2,14 +2,24 @@
 
 declare(strict_types=1);
 
+use JayI\Cortex\Contracts\PluginManagerContract;
 use JayI\Cortex\Plugins\Chat\ChatOptions;
 use JayI\Cortex\Plugins\Chat\ChatRequest;
 use JayI\Cortex\Plugins\Chat\ChatRequestBuilder;
 use JayI\Cortex\Plugins\Chat\Messages\Message;
 use JayI\Cortex\Plugins\Chat\Messages\MessageCollection;
 use JayI\Cortex\Plugins\Chat\ToolCollection;
+use JayI\Cortex\Plugins\Mcp\Contracts\McpServerContract;
+use JayI\Cortex\Plugins\Mcp\McpServerCollection;
 use JayI\Cortex\Plugins\Schema\Schema;
 use JayI\Cortex\Plugins\Tool\Tool;
+
+beforeEach(function () {
+    // Mock the plugin manager to allow cross-plugin methods
+    $pluginManager = Mockery::mock(PluginManagerContract::class);
+    $pluginManager->shouldReceive('has')->andReturn(true);
+    app()->instance(PluginManagerContract::class, $pluginManager);
+});
 
 describe('ChatRequest', function () {
     it('creates with messages', function () {
@@ -149,18 +159,68 @@ describe('ChatRequest', function () {
 
         expect($request->metadata)->toBe(['key' => 'value']);
     });
+
+    it('detects MCP servers', function () {
+        $server = Mockery::mock(McpServerContract::class);
+        $server->shouldReceive('id')->andReturn('server-1');
+        $messages = MessageCollection::make()->user('Hello');
+
+        $request = new ChatRequest(
+            messages: $messages,
+            mcpServers: McpServerCollection::make([$server, 'registry-entry']),
+        );
+
+        expect($request->hasMcpServers())->toBeTrue();
+    });
+
+    it('detects empty MCP servers', function () {
+        $messages = MessageCollection::make()->user('Hello');
+
+        $request = new ChatRequest(
+            messages: $messages,
+            mcpServers: McpServerCollection::make([]),
+        );
+
+        expect($request->hasMcpServers())->toBeFalse();
+    });
+
+    it('detects null MCP servers', function () {
+        $messages = MessageCollection::make()->user('Hello');
+
+        $request = new ChatRequest(
+            messages: $messages,
+        );
+
+        expect($request->hasMcpServers())->toBeFalse();
+    });
+
+    it('stores MCP servers', function () {
+        $server = Mockery::mock(McpServerContract::class);
+        $server->shouldReceive('id')->andReturn('server-1');
+        $messages = MessageCollection::make()->user('Hello');
+
+        $request = new ChatRequest(
+            messages: $messages,
+            mcpServers: McpServerCollection::make([$server, 'my-server']),
+        );
+
+        expect($request->mcpServers)->toBeInstanceOf(McpServerCollection::class);
+        expect($request->mcpServers->count())->toBe(2);
+        expect($request->mcpServers->has('server-1'))->toBeTrue();
+        expect($request->mcpServers->has('my-server'))->toBeTrue();
+    });
 });
 
 describe('ChatRequestBuilder', function () {
     it('creates empty builder', function () {
-        $builder = new ChatRequestBuilder();
+        $builder = new ChatRequestBuilder;
         $request = $builder->build();
 
         expect($request->messages->count())->toBe(0);
     });
 
     it('sets system prompt', function () {
-        $request = (new ChatRequestBuilder())
+        $request = (new ChatRequestBuilder)
             ->system('You are helpful')
             ->message('Hello')
             ->build();
@@ -170,7 +230,7 @@ describe('ChatRequestBuilder', function () {
     });
 
     it('adds string message as user', function () {
-        $request = (new ChatRequestBuilder())
+        $request = (new ChatRequestBuilder)
             ->message('Hello')
             ->build();
 
@@ -181,7 +241,7 @@ describe('ChatRequestBuilder', function () {
     it('adds Message object', function () {
         $message = Message::assistant('Hello');
 
-        $request = (new ChatRequestBuilder())
+        $request = (new ChatRequestBuilder)
             ->message($message)
             ->build();
 
@@ -195,7 +255,7 @@ describe('ChatRequestBuilder', function () {
             Message::assistant('Hi'),
         ];
 
-        $request = (new ChatRequestBuilder())
+        $request = (new ChatRequestBuilder)
             ->messages($messages)
             ->build();
 
@@ -207,7 +267,7 @@ describe('ChatRequestBuilder', function () {
             ->user('Hello')
             ->assistant('Hi');
 
-        $request = (new ChatRequestBuilder())
+        $request = (new ChatRequestBuilder)
             ->messages($collection)
             ->build();
 
@@ -215,7 +275,7 @@ describe('ChatRequestBuilder', function () {
     });
 
     it('sets model', function () {
-        $request = (new ChatRequestBuilder())
+        $request = (new ChatRequestBuilder)
             ->model('gpt-4')
             ->message('Hello')
             ->build();
@@ -226,7 +286,7 @@ describe('ChatRequestBuilder', function () {
     it('sets options from ChatOptions', function () {
         $options = new ChatOptions(temperature: 0.5);
 
-        $request = (new ChatRequestBuilder())
+        $request = (new ChatRequestBuilder)
             ->options($options)
             ->message('Hello')
             ->build();
@@ -236,7 +296,7 @@ describe('ChatRequestBuilder', function () {
 
     it('sets options from array', function () {
         // Use ChatOptions constructor since from() requires Laravel config
-        $request = (new ChatRequestBuilder())
+        $request = (new ChatRequestBuilder)
             ->options(new ChatOptions(temperature: 0.8))
             ->message('Hello')
             ->build();
@@ -245,7 +305,7 @@ describe('ChatRequestBuilder', function () {
     });
 
     it('sets temperature', function () {
-        $request = (new ChatRequestBuilder())
+        $request = (new ChatRequestBuilder)
             ->temperature(0.9)
             ->message('Hello')
             ->build();
@@ -254,7 +314,7 @@ describe('ChatRequestBuilder', function () {
     });
 
     it('sets max tokens', function () {
-        $request = (new ChatRequestBuilder())
+        $request = (new ChatRequestBuilder)
             ->maxTokens(2048)
             ->message('Hello')
             ->build();
@@ -269,8 +329,8 @@ describe('ChatRequestBuilder', function () {
 
         $tools = ToolCollection::make([$tool]);
 
-        $request = (new ChatRequestBuilder())
-            ->tools($tools)
+        $request = (new ChatRequestBuilder)
+            ->withTools($tools)
             ->message('Hello')
             ->build();
 
@@ -282,8 +342,8 @@ describe('ChatRequestBuilder', function () {
             ->withInput(Schema::object())
             ->withHandler(fn () => 'result');
 
-        $request = (new ChatRequestBuilder())
-            ->tools([$tool])
+        $request = (new ChatRequestBuilder)
+            ->withTools([$tool])
             ->message('Hello')
             ->build();
 
@@ -293,7 +353,7 @@ describe('ChatRequestBuilder', function () {
     it('sets response schema', function () {
         $schema = Schema::object();
 
-        $request = (new ChatRequestBuilder())
+        $request = (new ChatRequestBuilder)
             ->responseSchema($schema)
             ->message('Hello')
             ->build();
@@ -302,7 +362,7 @@ describe('ChatRequestBuilder', function () {
     });
 
     it('sets metadata', function () {
-        $request = (new ChatRequestBuilder())
+        $request = (new ChatRequestBuilder)
             ->metadata(['key' => 'value'])
             ->message('Hello')
             ->build();
@@ -311,7 +371,7 @@ describe('ChatRequestBuilder', function () {
     });
 
     it('does not duplicate system message', function () {
-        $request = (new ChatRequestBuilder())
+        $request = (new ChatRequestBuilder)
             ->system('First system')
             ->messages([
                 Message::system('Another system'),
@@ -328,11 +388,96 @@ describe('ChatRequestBuilder', function () {
         }
         expect($systemCount)->toBe(1);
     });
+
+    it('sets MCP servers with objects', function () {
+        $server1 = Mockery::mock(McpServerContract::class);
+        $server1->shouldReceive('id')->andReturn('server-1');
+
+        $server2 = Mockery::mock(McpServerContract::class);
+        $server2->shouldReceive('id')->andReturn('server-2');
+
+        $request = (new ChatRequestBuilder)
+            ->withMcpServers([$server1, $server2])
+            ->message('Hello')
+            ->build();
+
+        expect($request->mcpServers)->toBeInstanceOf(McpServerCollection::class);
+        expect($request->mcpServers->count())->toBe(2);
+        expect($request->mcpServers->has('server-1'))->toBeTrue();
+        expect($request->mcpServers->has('server-2'))->toBeTrue();
+    });
+
+    it('sets MCP servers with strings', function () {
+        $request = (new ChatRequestBuilder)
+            ->withMcpServers(['my-server', 'App\\Mcp\\CustomServer'])
+            ->message('Hello')
+            ->build();
+
+        expect($request->mcpServers)->toBeInstanceOf(McpServerCollection::class);
+        expect($request->mcpServers->count())->toBe(2);
+        expect($request->mcpServers->has('my-server'))->toBeTrue();
+        expect($request->mcpServers->has('App\\Mcp\\CustomServer'))->toBeTrue();
+    });
+
+    it('sets MCP servers with mixed array', function () {
+        $server = Mockery::mock(McpServerContract::class);
+        $server->shouldReceive('id')->andReturn('server-1');
+
+        $request = (new ChatRequestBuilder)
+            ->withMcpServers([$server, 'registry-entry', 'App\\Mcp\\Server'])
+            ->message('Hello')
+            ->build();
+
+        expect($request->mcpServers)->toBeInstanceOf(McpServerCollection::class);
+        expect($request->mcpServers->count())->toBe(3);
+        expect($request->mcpServers->has('server-1'))->toBeTrue();
+        expect($request->mcpServers->has('registry-entry'))->toBeTrue();
+        expect($request->mcpServers->has('App\\Mcp\\Server'))->toBeTrue();
+    });
+
+    it('adds individual MCP servers', function () {
+        $server = Mockery::mock(McpServerContract::class);
+        $server->shouldReceive('id')->andReturn('server-1');
+
+        $request = (new ChatRequestBuilder)
+            ->addMcpServer('my-server')
+            ->addMcpServer($server)
+            ->message('Hello')
+            ->build();
+
+        expect($request->mcpServers)->toBeInstanceOf(McpServerCollection::class);
+        expect($request->mcpServers->count())->toBe(2);
+        expect($request->mcpServers->has('my-server'))->toBeTrue();
+        expect($request->mcpServers->has('server-1'))->toBeTrue();
+    });
+
+    it('defaults to null MCP servers', function () {
+        $request = (new ChatRequestBuilder)
+            ->message('Hello')
+            ->build();
+
+        expect($request->mcpServers)->toBeNull();
+    });
+
+    it('accepts McpServerCollection directly', function () {
+        $server = Mockery::mock(McpServerContract::class);
+        $server->shouldReceive('id')->andReturn('server-1');
+
+        $collection = McpServerCollection::make([$server, 'string-server']);
+
+        $request = (new ChatRequestBuilder)
+            ->withMcpServers($collection)
+            ->message('Hello')
+            ->build();
+
+        expect($request->mcpServers)->toBe($collection);
+        expect($request->mcpServers->count())->toBe(2);
+    });
 });
 
 describe('ChatOptions', function () {
     it('creates with defaults constructor', function () {
-        $options = new ChatOptions();
+        $options = new ChatOptions;
 
         expect($options->temperature)->toBeNull();
         expect($options->maxTokens)->toBeNull();
@@ -372,7 +517,7 @@ describe('ChatOptions', function () {
             topP: 0.9,
         );
 
-        $override = new ChatOptions();
+        $override = new ChatOptions;
 
         $merged = $base->merge($override);
 

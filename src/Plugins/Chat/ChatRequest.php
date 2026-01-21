@@ -6,6 +6,7 @@ namespace JayI\Cortex\Plugins\Chat;
 
 use JayI\Cortex\Plugins\Chat\Messages\Message;
 use JayI\Cortex\Plugins\Chat\Messages\MessageCollection;
+use JayI\Cortex\Plugins\Mcp\McpServerCollection;
 use JayI\Cortex\Plugins\Schema\Schema;
 use Spatie\LaravelData\Data;
 
@@ -18,10 +19,11 @@ class ChatRequest extends Data
         public MessageCollection $messages,
         public ?string $systemPrompt = null,
         public ?string $model = null,
-        public ChatOptions $options = new ChatOptions(),
+        public ChatOptions $options = new ChatOptions,
         public ?ToolCollection $tools = null,
         public ?Schema $responseSchema = null,
         public array $metadata = [],
+        public ?McpServerCollection $mcpServers = null,
     ) {}
 
     /**
@@ -29,7 +31,7 @@ class ChatRequest extends Data
      */
     public static function make(): ChatRequestBuilder
     {
-        return new ChatRequestBuilder();
+        return new ChatRequestBuilder;
     }
 
     /**
@@ -55,6 +57,14 @@ class ChatRequest extends Data
     public function hasTools(): bool
     {
         return $this->tools !== null && $this->tools->count() > 0;
+    }
+
+    /**
+     * Check if the request has MCP servers.
+     */
+    public function hasMcpServers(): bool
+    {
+        return $this->mcpServers !== null && $this->mcpServers->isNotEmpty();
     }
 
     /**

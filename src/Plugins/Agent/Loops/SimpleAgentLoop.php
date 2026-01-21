@@ -16,7 +16,6 @@ use JayI\Cortex\Events\Concerns\DispatchesCortexEvents;
 use JayI\Cortex\Plugins\Agent\AgentContext;
 use JayI\Cortex\Plugins\Agent\AgentIteration;
 use JayI\Cortex\Plugins\Agent\AgentResponse;
-use JayI\Cortex\Plugins\Agent\AgentStopReason;
 use JayI\Cortex\Plugins\Agent\Contracts\AgentContract;
 use JayI\Cortex\Plugins\Agent\Contracts\AgentLoopContract;
 use JayI\Cortex\Plugins\Chat\ChatRequest;
@@ -33,6 +32,7 @@ use JayI\Cortex\Plugins\Tool\ToolExecutor;
 class SimpleAgentLoop implements AgentLoopContract
 {
     use DispatchesCortexEvents;
+
     public function __construct(
         protected ChatClientContract $chatClient,
         protected ToolExecutor $toolExecutor,
@@ -294,7 +294,7 @@ class SimpleAgentLoop implements AgentLoopContract
                 $calls[] = [
                     'tool' => $toolCall->name,
                     'input' => $toolCall->input,
-                    'output' => ['error' => "Tool not found"],
+                    'output' => ['error' => 'Tool not found'],
                 ];
 
                 continue;

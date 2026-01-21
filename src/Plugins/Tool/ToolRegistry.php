@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace JayI\Cortex\Plugins\Tool;
 
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use JayI\Cortex\Events\Concerns\DispatchesCortexEvents;
 use JayI\Cortex\Events\Tool\ToolRegistered;
@@ -18,10 +17,8 @@ use ReflectionClass;
 class ToolRegistry implements ToolRegistryContract
 {
     use DispatchesCortexEvents;
-    /**
-     * @var Collection<string, ToolContract>
-     */
-    protected Collection $tools;
+
+    protected ToolCollection $tools;
 
     /**
      * @var array<string, class-string<ToolContract>>
@@ -35,7 +32,7 @@ class ToolRegistry implements ToolRegistryContract
         protected Container $container,
         protected array $config = [],
     ) {
-        $this->tools = new Collection();
+        $this->tools = ToolCollection::make([]);
     }
 
     /**
@@ -67,7 +64,7 @@ class ToolRegistry implements ToolRegistryContract
             throw ToolException::notFound($name);
         }
 
-        return $this->tools->get($name);
+        return $this->tools->find($name);
     }
 
     /**
@@ -81,7 +78,7 @@ class ToolRegistry implements ToolRegistryContract
     /**
      * {@inheritdoc}
      */
-    public function all(): Collection
+    public function all(): ToolCollection
     {
         // Resolve all deferred tools
         foreach ($this->deferredTools as $name => $class) {
@@ -90,6 +87,22 @@ class ToolRegistry implements ToolRegistryContract
         }
 
         return $this->tools;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function only(array $names): ToolCollection
+    {
+        return $this->all()->only($names);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function except(array $names): ToolCollection
+    {
+        return $this->all()->except($names);
     }
 
     /**
@@ -129,7 +142,7 @@ class ToolRegistry implements ToolRegistryContract
     public function execute(string $name, array $input, ?ToolContext $context = null): ToolResult
     {
         $tool = $this->get($name);
-        $context ??= new ToolContext();
+        $context ??= new ToolContext;
 
         // Validate input
         $validation = $tool->inputSchema()->validate($input);
@@ -155,7 +168,7 @@ class ToolRegistry implements ToolRegistryContract
     public function names(): array
     {
         return array_merge(
-            $this->tools->keys()->toArray(),
+            $this->tools->names(),
             array_keys($this->deferredTools)
         );
     }
@@ -171,7 +184,7 @@ class ToolRegistry implements ToolRegistryContract
             throw ToolException::alreadyRegistered($name);
         }
 
-        $this->tools->put($name, $tool);
+        $this->tools = $this->tools->add($tool);
 
         $this->dispatchCortexEvent(new ToolRegistered(
             tool: $tool,

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace JayI\Cortex\Events\Concerns;
 
-use JayI\Cortex\Events\CortexEvent;
 use Illuminate\Support\Facades\Config;
+use JayI\Cortex\Events\CortexEvent;
 
 trait DispatchesCortexEvents
 {

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace JayI\Cortex\Plugins\Workflow;
 
-use Illuminate\Support\Collection;
 use JayI\Cortex\Exceptions\WorkflowException;
 use JayI\Cortex\Plugins\Workflow\Contracts\WorkflowContract;
 use JayI\Cortex\Plugins\Workflow\Contracts\WorkflowRegistryContract;
@@ -14,15 +13,19 @@ use JayI\Cortex\Plugins\Workflow\Contracts\WorkflowRegistryContract;
  */
 class WorkflowRegistry implements WorkflowRegistryContract
 {
-    /** @var array<string, WorkflowContract> */
-    protected array $workflows = [];
+    protected WorkflowCollection $workflows;
+
+    public function __construct()
+    {
+        $this->workflows = WorkflowCollection::make([]);
+    }
 
     /**
      * {@inheritdoc}
      */
     public function register(WorkflowContract $workflow): void
     {
-        $this->workflows[$workflow->id()] = $workflow;
+        $this->workflows = $this->workflows->add($workflow);
     }
 
     /**
@@ -30,11 +33,11 @@ class WorkflowRegistry implements WorkflowRegistryContract
      */
     public function get(string $id): WorkflowContract
     {
-        if (! isset($this->workflows[$id])) {
+        if (! $this->has($id)) {
             throw WorkflowException::workflowNotFound($id);
         }
 
-        return $this->workflows[$id];
+        return $this->workflows->get($id);
     }
 
     /**
@@ -42,15 +45,31 @@ class WorkflowRegistry implements WorkflowRegistryContract
      */
     public function has(string $id): bool
     {
-        return isset($this->workflows[$id]);
+        return $this->workflows->has($id);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function all(): Collection
+    public function all(): WorkflowCollection
     {
-        return collect($this->workflows);
+        return $this->workflows;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function only(array $ids): WorkflowCollection
+    {
+        return $this->workflows->only($ids);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function except(array $ids): WorkflowCollection
+    {
+        return $this->workflows->except($ids);
     }
 
     /**
@@ -58,6 +77,6 @@ class WorkflowRegistry implements WorkflowRegistryContract
      */
     public function remove(string $id): void
     {
-        unset($this->workflows[$id]);
+        $this->workflows = $this->workflows->remove($id);
     }
 }

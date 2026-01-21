@@ -284,6 +284,7 @@ Register and retrieve agents:
 
 ```php
 use JayI\Cortex\Plugins\Agent\Contracts\AgentRegistryContract;
+use JayI\Cortex\Plugins\Agent\AgentCollection;
 
 $registry = app(AgentRegistryContract::class);
 
@@ -296,8 +297,14 @@ $agent = $registry->get('research-assistant');
 // Check existence
 $registry->has('research-assistant'); // true
 
-// List all agents
+// List all agents (returns AgentCollection)
 $agents = $registry->all();
+
+// Get specific agents (returns AgentCollection)
+$subset = $registry->only(['research-assistant', 'writing-assistant']);
+
+// Get all except specified (returns AgentCollection)
+$filtered = $registry->except(['deprecated-agent']);
 ```
 
 ## Hooks
@@ -339,6 +346,38 @@ AgentException::runFailed($id, $message);
 AgentException::maxIterationsExceeded($id, $maxIterations);
 AgentException::invalidLoopStrategy($strategy);
 ```
+
+### Plugin Dependency Exceptions
+
+Certain Agent methods require specific plugins to be enabled. A `PluginException` is thrown if the required plugin is not registered:
+
+```php
+use JayI\Cortex\Exceptions\PluginException;
+
+// Requires 'tool' plugin to be enabled
+try {
+    $agent = Agent::make('my-agent')
+        ->withTools($tools);    // Throws if tool plugin disabled
+} catch (PluginException $e) {
+    // "Plugin [tool] is disabled."
+}
+
+// Requires 'mcp' plugin to be enabled
+try {
+    $agent = Agent::make('my-agent')
+        ->withMcpServers($servers);  // Throws if mcp plugin disabled
+} catch (PluginException $e) {
+    // "Plugin [mcp] is disabled."
+}
+```
+
+**Methods requiring `tool` plugin:**
+- `withTools()`
+- `addTool()`
+
+**Methods requiring `mcp` plugin:**
+- `withMcpServers()`
+- `addMcpServer()`
 
 ## Configuration
 
@@ -502,6 +541,209 @@ Event::listen(AgentRunCompletedEvent::class, function ($event) {
     ],
 ],
 ```
+
+## Multi-Agent Orchestration
+
+Agents can delegate tasks to other agents using the agent-as-tool pattern. This enables building hierarchical multi-agent systems where a supervisor agent orchestrates specialized sub-agents.
+
+### Converting Agents to Tools
+
+Any agent can be converted to a tool using the `asTool()` method:
+
+```php
+use JayI\Cortex\Plugins\Agent\Agent;
+use JayI\Cortex\Plugins\Agent\AgentTool;
+
+// Create specialized agents
+$researchAgent = Agent::make('research-agent')
+    ->withDescription('Specializes in web research and finding information')
+    ->withSystemPrompt('You are a research specialist...')
+    ->withTools([$searchTool, $webScrapeTool]);
+
+$writingAgent = Agent::make('writing-agent')
+    ->withDescription('Specializes in writing and content creation')
+    ->withSystemPrompt('You are a writing specialist...')
+    ->withTools([$grammarTool]);
+
+// Convert agents to tools
+$researchTool = $researchAgent->asTool();
+$writingTool = $writingAgent->asTool();
+
+// Create orchestrator with agent tools
+$orchestrator = Agent::make('orchestrator')
+    ->withSystemPrompt('You coordinate tasks between specialists...')
+    ->withTools([$researchTool, $writingTool]);
+
+$response = $orchestrator->run('Research AI trends and write a summary');
+```
+
+### AgentTool Class
+
+The `AgentTool` class wraps an agent as a tool:
+
+```php
+use JayI\Cortex\Plugins\Agent\AgentTool;
+
+$tool = AgentTool::make($agent);
+
+// Customize the tool
+$tool = AgentTool::make($agent)
+    ->withName('research')                    // Custom tool name (default: agent ID)
+    ->withDescription('Research specialist')  // Custom description (default: agent description)
+    ->withTimeout(120);                       // Execution timeout in seconds
+```
+
+### Custom Input Schema
+
+By default, agent tools accept a single `task` property. You can customize this:
+
+```php
+use JayI\Cortex\Plugins\Schema\Schema;
+
+$tool = AgentTool::make($agent)
+    ->withInputSchema(
+        Schema::object()
+            ->property('query', Schema::string()->description('The research query'))
+            ->property('depth', Schema::enum(['shallow', 'deep'])->default('shallow'))
+            ->required('query')
+    );
+```
+
+### Converting Collections to Tools
+
+Convert an entire collection of agents to tools:
+
+```php
+use JayI\Cortex\Plugins\Agent\AgentCollection;
+
+$agents = AgentCollection::make([
+    $researchAgent,
+    $writingAgent,
+    $analysisAgent,
+]);
+
+// Convert all agents to tools
+$tools = $agents->asTools();
+
+// Use in an orchestrator
+$orchestrator = Agent::make('orchestrator')
+    ->withTools($tools);
+```
+
+### Context Propagation
+
+When an agent is invoked as a tool, context is automatically propagated:
+
+```php
+// Parent context
+$context = new AgentContext(
+    conversationId: 'conv-123',
+    tenantId: 'tenant-456',
+);
+
+// When orchestrator calls a sub-agent tool, the sub-agent receives:
+// - conversationId: 'conv-123' (propagated)
+// - tenantId: 'tenant-456' (propagated)
+// - metadata['parent_agent']: 'orchestrator' (added automatically)
+// - metadata['delegated_from_tool']: true (added automatically)
+```
+
+### Tool Result
+
+When an agent tool executes, it returns a structured result:
+
+```php
+$result = $agentTool->execute(['task' => 'Research AI'], $context);
+
+if ($result->success) {
+    $response = $result->output['response'];     // Agent's text response
+    $iterations = $result->output['iterations']; // Number of iterations used
+    $stopReason = $result->output['stop_reason']; // 'completed', 'max_iterations', etc.
+}
+```
+
+### Multi-Agent Example
+
+Complete example of a hierarchical multi-agent system:
+
+```php
+use JayI\Cortex\Plugins\Agent\Agent;
+use JayI\Cortex\Plugins\Agent\AgentContext;
+use JayI\Cortex\Plugins\Tool\Tool;
+use JayI\Cortex\Plugins\Tool\ToolResult;
+use JayI\Cortex\Plugins\Schema\Schema;
+
+// Level 1: Specialized worker agents
+$researchAgent = Agent::make('researcher')
+    ->withDescription('Expert at finding and summarizing information from the web')
+    ->withSystemPrompt('You are a research specialist. Find accurate information and cite sources.')
+    ->withTools([
+        Tool::make('web_search')
+            ->withDescription('Search the web')
+            ->withInput(Schema::object()->property('query', Schema::string())->required('query'))
+            ->withHandler(fn ($input) => ToolResult::success(WebSearch::query($input['query']))),
+    ])
+    ->withMaxIterations(5);
+
+$writerAgent = Agent::make('writer')
+    ->withDescription('Expert at writing clear, engaging content')
+    ->withSystemPrompt('You are a writing specialist. Create well-structured, engaging content.')
+    ->withMaxIterations(3);
+
+$reviewerAgent = Agent::make('reviewer')
+    ->withDescription('Expert at reviewing and improving content quality')
+    ->withSystemPrompt('You are a quality reviewer. Check for accuracy, clarity, and completeness.')
+    ->withMaxIterations(3);
+
+// Level 2: Orchestrator agent
+$orchestrator = Agent::make('project-manager')
+    ->withSystemPrompt(<<<PROMPT
+You are a project manager coordinating a content creation team.
+
+You have access to three specialists:
+- researcher: For finding information
+- writer: For creating content
+- reviewer: For quality checks
+
+For any content request:
+1. First, delegate research to gather information
+2. Then, have the writer create content based on research
+3. Finally, have the reviewer check the quality
+
+Synthesize their outputs into a final deliverable.
+PROMPT)
+    ->withTools([
+        $researchAgent->asTool(),
+        $writerAgent->asTool(),
+        $reviewerAgent->asTool(),
+    ])
+    ->withMaxIterations(10);
+
+// Execute
+$response = $orchestrator->run(
+    'Create a blog post about the benefits of renewable energy',
+    new AgentContext(conversationId: 'blog-project-001')
+);
+
+echo $response->content;
+echo "Total iterations: {$response->iterationCount}\n";
+echo "Tool calls made: " . count($response->toolCalls()) . "\n";
+```
+
+### Best Practices
+
+1. **Clear Agent Descriptions**: Write descriptive agent descriptions so the orchestrator knows when to use each specialist.
+
+2. **Appropriate Max Iterations**: Set lower `maxIterations` for sub-agents to prevent runaway execution.
+
+3. **Error Handling**: Agent tools automatically catch exceptions and return error results, but consider handling specific failure cases.
+
+4. **Context Isolation**: Each sub-agent runs with its own memory by default. Use shared memory strategies for collaboration.
+
+5. **Timeout Management**: Set appropriate timeouts for agent tools to prevent blocking:
+   ```php
+   $tool = $agent->asTool()->withTimeout(60);
+   ```
 
 ## RAG Integration
 

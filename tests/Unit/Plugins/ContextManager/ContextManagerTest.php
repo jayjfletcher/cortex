@@ -430,19 +430,19 @@ describe('ContextMessage additional', function () {
 
 describe('TruncateOldestStrategy additional', function () {
     test('returns strategy id', function () {
-        $strategy = new TruncateOldestStrategy();
+        $strategy = new TruncateOldestStrategy;
         expect($strategy->id())->toBe('truncate-oldest');
     });
 
     test('supports any window', function () {
-        $strategy = new TruncateOldestStrategy();
+        $strategy = new TruncateOldestStrategy;
         $window = ContextWindow::create(4096);
 
         expect($strategy->supports($window))->toBeTrue();
     });
 
     test('returns unchanged window when empty', function () {
-        $strategy = new TruncateOldestStrategy();
+        $strategy = new TruncateOldestStrategy;
         $window = ContextWindow::create(4096);
 
         $reduced = $strategy->reduce($window, 1000);
@@ -475,19 +475,19 @@ describe('TruncateOldestStrategy additional', function () {
 
 describe('ImportanceStrategy additional', function () {
     test('returns strategy id', function () {
-        $strategy = new ImportanceStrategy();
+        $strategy = new ImportanceStrategy;
         expect($strategy->id())->toBe('importance');
     });
 
     test('supports any window', function () {
-        $strategy = new ImportanceStrategy();
+        $strategy = new ImportanceStrategy;
         $window = ContextWindow::create(4096);
 
         expect($strategy->supports($window))->toBeTrue();
     });
 
     test('returns unchanged window when empty', function () {
-        $strategy = new ImportanceStrategy();
+        $strategy = new ImportanceStrategy;
         $window = ContextWindow::create(4096);
 
         $reduced = $strategy->reduce($window, 1000);

@@ -25,14 +25,14 @@ class FilePromptLoader
         }
 
         // Also load standalone prompt files
-        foreach (File::glob($path . '/*.blade.php') as $promptFile) {
+        foreach (File::glob($path.'/*.blade.php') as $promptFile) {
             $this->loadPromptFile($promptFile);
         }
     }
 
     protected function loadPromptDirectory(string $dir): void
     {
-        $metadataFile = $dir . '/prompt.yaml';
+        $metadataFile = $dir.'/prompt.yaml';
         $metadata = [];
 
         if (File::exists($metadataFile)) {
@@ -45,11 +45,11 @@ class FilePromptLoader
         $defaults = $metadata['defaults'] ?? [];
 
         // Load all version files (v1.blade.php, v1.0.blade.php, v1.0.0.blade.php)
-        $versionFiles = File::glob($dir . '/v*.blade.php');
+        $versionFiles = File::glob($dir.'/v*.blade.php');
 
         if (empty($versionFiles)) {
             // Check for a default template.blade.php
-            $defaultTemplate = $dir . '/template.blade.php';
+            $defaultTemplate = $dir.'/template.blade.php';
             if (File::exists($defaultTemplate)) {
                 $versionFiles = [$defaultTemplate];
             }

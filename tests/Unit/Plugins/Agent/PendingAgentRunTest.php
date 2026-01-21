@@ -5,8 +5,8 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Cache;
 use JayI\Cortex\Plugins\Agent\AgentContext;
 use JayI\Cortex\Plugins\Agent\AgentRunStatus;
-use JayI\Cortex\Plugins\Agent\PendingAgentRun;
 use JayI\Cortex\Plugins\Agent\Contracts\AgentContract;
+use JayI\Cortex\Plugins\Agent\PendingAgentRun;
 
 describe('PendingAgentRun', function () {
     it('creates with agent and input', function () {
@@ -28,7 +28,7 @@ describe('PendingAgentRun', function () {
 
     it('creates with context', function () {
         $agent = Mockery::mock(AgentContract::class);
-        $context = new AgentContext();
+        $context = new AgentContext;
 
         $pending = new PendingAgentRun($agent, 'input', $context);
 
@@ -165,7 +165,7 @@ describe('PendingAgentRun', function () {
 
         $run = new PendingAgentRun($mockAgent, 'Do the task');
 
-        expect(fn() => $run->handle())->toThrow(RuntimeException::class);
+        expect(fn () => $run->handle())->toThrow(RuntimeException::class);
 
         $status = PendingAgentRun::status($run->id());
         expect($status)->toBe(AgentRunStatus::Failed);

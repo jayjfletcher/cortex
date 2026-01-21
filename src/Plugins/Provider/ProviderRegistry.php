@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace JayI\Cortex\Plugins\Provider;
 
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Support\Collection;
 use JayI\Cortex\Events\Concerns\DispatchesCortexEvents;
 use JayI\Cortex\Events\Provider\ProviderRegistered;
 use JayI\Cortex\Exceptions\ProviderException;
@@ -16,23 +15,20 @@ use JayI\Cortex\Support\TenantManager;
 class ProviderRegistry implements ProviderRegistryContract
 {
     use DispatchesCortexEvents;
-    /**
-     * @var Collection<string, ProviderContract|class-string<ProviderContract>>
-     */
-    protected Collection $providers;
 
     /**
-     * @var Collection<string, ProviderContract>
+     * @var array<string, ProviderContract|class-string<ProviderContract>>
      */
-    protected Collection $resolved;
+    protected array $providers = [];
+
+    protected ProviderCollection $resolved;
 
     protected ?string $defaultProvider = null;
 
     public function __construct(
         protected Container $container,
     ) {
-        $this->providers = new Collection();
-        $this->resolved = new Collection();
+        $this->resolved = ProviderCollection::make([]);
     }
 
     /**
@@ -42,7 +38,7 @@ class ProviderRegistry implements ProviderRegistryContract
      */
     public function register(string $id, ProviderContract|string $provider): void
     {
-        $this->providers->put($id, $provider);
+        $this->providers[$id] = $provider;
 
         // Set as default if first provider
         if ($this->defaultProvider === null) {
@@ -70,7 +66,7 @@ class ProviderRegistry implements ProviderRegistryContract
         if ($this->resolved->has($id)) {
             $provider = $this->resolved->get($id);
         } else {
-            $provider = $this->providers->get($id);
+            $provider = $this->providers[$id];
 
             // Resolve if it's a class string
             if (is_string($provider)) {
@@ -78,7 +74,7 @@ class ProviderRegistry implements ProviderRegistryContract
             }
 
             // Cache the resolved provider
-            $this->resolved->put($id, $provider);
+            $this->resolved = $this->resolved->add($id, $provider);
         }
 
         // Apply tenant-specific configuration if available
@@ -123,24 +119,42 @@ class ProviderRegistry implements ProviderRegistryContract
      */
     public function has(string $id): bool
     {
-        return $this->providers->has($id);
+        return isset($this->providers[$id]);
     }
 
     /**
      * Get all registered providers.
-     *
-     * @return Collection<string, ProviderContract>
      */
-    public function all(): Collection
+    public function all(): ProviderCollection
     {
         // Resolve all providers
-        foreach ($this->providers->keys() as $id) {
+        foreach (array_keys($this->providers) as $id) {
             if (! $this->resolved->has($id)) {
                 $this->get($id);
             }
         }
 
         return $this->resolved;
+    }
+
+    /**
+     * Get only the specified providers.
+     *
+     * @param  array<int, string>  $ids
+     */
+    public function only(array $ids): ProviderCollection
+    {
+        return $this->all()->only($ids);
+    }
+
+    /**
+     * Get all providers except the specified ones.
+     *
+     * @param  array<int, string>  $ids
+     */
+    public function except(array $ids): ProviderCollection
+    {
+        return $this->all()->except($ids);
     }
 
     /**
@@ -176,7 +190,7 @@ class ProviderRegistry implements ProviderRegistryContract
      */
     public function swap(string $id, ProviderContract $provider): void
     {
-        $this->providers->put($id, $provider);
-        $this->resolved->put($id, $provider);
+        $this->providers[$id] = $provider;
+        $this->resolved = $this->resolved->add($id, $provider);
     }
 }

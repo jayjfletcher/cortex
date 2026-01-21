@@ -3,12 +3,8 @@
 declare(strict_types=1);
 
 use JayI\Cortex\Plugins\Schema\Schema;
-use JayI\Cortex\Plugins\Schema\Types\ArraySchema;
 use JayI\Cortex\Plugins\Schema\Types\BooleanSchema;
 use JayI\Cortex\Plugins\Schema\Types\EnumSchema;
-use JayI\Cortex\Plugins\Schema\Types\IntegerSchema;
-use JayI\Cortex\Plugins\Schema\Types\NumberSchema;
-use JayI\Cortex\Plugins\Schema\Types\ObjectSchema;
 use JayI\Cortex\Plugins\Schema\Types\StringSchema;
 
 describe('Schema', function () {

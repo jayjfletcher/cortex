@@ -4,24 +4,25 @@ declare(strict_types=1);
 
 namespace JayI\Cortex\Plugins\Mcp;
 
-use Illuminate\Support\Collection;
 use JayI\Cortex\Exceptions\McpException;
 use JayI\Cortex\Plugins\Mcp\Contracts\McpRegistryContract;
 use JayI\Cortex\Plugins\Mcp\Contracts\McpServerContract;
 
 class McpRegistry implements McpRegistryContract
 {
-    /**
-     * @var array<string, McpServerContract>
-     */
-    protected array $servers = [];
+    protected McpServerCollection $servers;
+
+    public function __construct()
+    {
+        $this->servers = McpServerCollection::make([]);
+    }
 
     /**
      * {@inheritdoc}
      */
     public function register(McpServerContract $server): void
     {
-        $this->servers[$server->id()] = $server;
+        $this->servers = $this->servers->add($server);
     }
 
     /**
@@ -33,7 +34,7 @@ class McpRegistry implements McpRegistryContract
             throw McpException::serverNotFound($id);
         }
 
-        return $this->servers[$id];
+        return $this->servers->get($id);
     }
 
     /**
@@ -41,15 +42,31 @@ class McpRegistry implements McpRegistryContract
      */
     public function has(string $id): bool
     {
-        return isset($this->servers[$id]);
+        return $this->servers->has($id);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function all(): Collection
+    public function all(): McpServerCollection
     {
-        return collect($this->servers);
+        return $this->servers;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function only(array $ids): McpServerCollection
+    {
+        return $this->servers->only($ids);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function except(array $ids): McpServerCollection
+    {
+        return $this->servers->except($ids);
     }
 
     /**

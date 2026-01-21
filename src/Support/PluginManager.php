@@ -43,8 +43,8 @@ class PluginManager implements PluginManagerContract
     public function __construct(
         protected Container $container,
     ) {
-        $this->plugins = new Collection();
-        $this->extensionPoints = new Collection();
+        $this->plugins = new Collection;
+        $this->extensionPoints = new Collection;
     }
 
     /**

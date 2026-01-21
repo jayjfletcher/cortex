@@ -8,10 +8,15 @@ use Illuminate\Contracts\Container\Container;
 use JayI\Cortex\Plugins\Chat\Contracts\ChatClientContract;
 use JayI\Cortex\Plugins\Chat\Messages\Message;
 use JayI\Cortex\Plugins\Chat\Messages\MessageCollection;
+use JayI\Cortex\Plugins\Mcp\Contracts\McpServerContract;
+use JayI\Cortex\Plugins\Mcp\McpServerCollection;
 use JayI\Cortex\Plugins\Schema\Schema;
+use JayI\Cortex\Support\Concerns\RequiresPlugins;
 
 class ChatRequestBuilder
 {
+    use RequiresPlugins;
+
     protected MessageCollection $messages;
 
     protected ?string $systemPrompt = null;
@@ -29,10 +34,12 @@ class ChatRequestBuilder
      */
     protected array $metadata = [];
 
+    protected ?McpServerCollection $mcpServers = null;
+
     public function __construct()
     {
         $this->messages = MessageCollection::make();
-        $this->options = new ChatOptions();
+        $this->options = new ChatOptions;
     }
 
     /**
@@ -141,9 +148,13 @@ class ChatRequestBuilder
      * Set the tools.
      *
      * @param  ToolCollection|array<int, mixed>  $tools
+     *
+     * @throws \JayI\Cortex\Exceptions\PluginException
      */
-    public function tools(ToolCollection|array $tools): static
+    public function withTools(ToolCollection|array $tools): static
     {
+        $this->ensurePluginEnabled('tool');
+
         if (is_array($tools)) {
             $this->tools = ToolCollection::make($tools);
         } else {
@@ -176,6 +187,43 @@ class ChatRequestBuilder
     }
 
     /**
+     * Set the MCP servers.
+     *
+     * @param  array<int, McpServerContract|string>|McpServerCollection  $servers
+     *
+     * @throws \JayI\Cortex\Exceptions\PluginException
+     */
+    public function withMcpServers(array|McpServerCollection $servers): static
+    {
+        $this->ensurePluginEnabled('mcp');
+
+        if (is_array($servers)) {
+            $this->mcpServers = McpServerCollection::make($servers);
+        } else {
+            $this->mcpServers = $servers;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Add an MCP server.
+     *
+     * @throws \JayI\Cortex\Exceptions\PluginException
+     */
+    public function addMcpServer(McpServerContract|string $server): static
+    {
+        $this->ensurePluginEnabled('mcp');
+
+        if ($this->mcpServers === null) {
+            $this->mcpServers = McpServerCollection::make([]);
+        }
+        $this->mcpServers = $this->mcpServers->add($server);
+
+        return $this;
+    }
+
+    /**
      * Build the request.
      */
     public function build(): ChatRequest
@@ -203,6 +251,7 @@ class ChatRequestBuilder
             tools: $this->tools,
             responseSchema: $this->responseSchema,
             metadata: $this->metadata,
+            mcpServers: $this->mcpServers,
         );
     }
 

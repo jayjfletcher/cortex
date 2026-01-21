@@ -9,7 +9,7 @@ use JayI\Cortex\Plugins\Workflow\WorkflowRegistry;
 
 describe('WorkflowRegistry', function () {
     it('registers and retrieves workflows', function () {
-        $registry = new WorkflowRegistry();
+        $registry = new WorkflowRegistry;
 
         $workflow = Workflow::make('test-workflow')
             ->callback('step1', fn () => NodeResult::success([]));
@@ -21,14 +21,14 @@ describe('WorkflowRegistry', function () {
     });
 
     it('throws exception when workflow not found', function () {
-        $registry = new WorkflowRegistry();
+        $registry = new WorkflowRegistry;
 
         expect(fn () => $registry->get('nonexistent'))
             ->toThrow(WorkflowException::class, "Workflow 'nonexistent' not found");
     });
 
     it('returns all registered workflows', function () {
-        $registry = new WorkflowRegistry();
+        $registry = new WorkflowRegistry;
 
         $workflow1 = Workflow::make('wf1')->callback('step', fn () => NodeResult::success([]));
         $workflow2 = Workflow::make('wf2')->callback('step', fn () => NodeResult::success([]));
@@ -43,7 +43,7 @@ describe('WorkflowRegistry', function () {
     });
 
     it('removes workflows', function () {
-        $registry = new WorkflowRegistry();
+        $registry = new WorkflowRegistry;
 
         $workflow = Workflow::make('test')->callback('step', fn () => NodeResult::success([]));
         $registry->register($workflow);
@@ -56,7 +56,7 @@ describe('WorkflowRegistry', function () {
     });
 
     it('overwrites workflows with same id', function () {
-        $registry = new WorkflowRegistry();
+        $registry = new WorkflowRegistry;
 
         $workflow1 = Workflow::make('test')
             ->withName('First')
@@ -71,6 +71,69 @@ describe('WorkflowRegistry', function () {
 
         $retrieved = $registry->get('test');
         expect($retrieved->name())->toBe('Second');
+    });
+
+    it('returns only specified workflows', function () {
+        $registry = new WorkflowRegistry;
+
+        $workflow1 = Workflow::make('wf1')->callback('step', fn () => NodeResult::success([]));
+        $workflow2 = Workflow::make('wf2')->callback('step', fn () => NodeResult::success([]));
+        $workflow3 = Workflow::make('wf3')->callback('step', fn () => NodeResult::success([]));
+
+        $registry->register($workflow1);
+        $registry->register($workflow2);
+        $registry->register($workflow3);
+
+        $only = $registry->only(['wf1', 'wf3']);
+
+        expect($only->count())->toBe(2);
+        expect($only->has('wf1'))->toBeTrue();
+        expect($only->has('wf3'))->toBeTrue();
+        expect($only->has('wf2'))->toBeFalse();
+    });
+
+    it('returns all workflows except specified ones', function () {
+        $registry = new WorkflowRegistry;
+
+        $workflow1 = Workflow::make('wf1')->callback('step', fn () => NodeResult::success([]));
+        $workflow2 = Workflow::make('wf2')->callback('step', fn () => NodeResult::success([]));
+        $workflow3 = Workflow::make('wf3')->callback('step', fn () => NodeResult::success([]));
+
+        $registry->register($workflow1);
+        $registry->register($workflow2);
+        $registry->register($workflow3);
+
+        $except = $registry->except(['wf2']);
+
+        expect($except->count())->toBe(2);
+        expect($except->has('wf1'))->toBeTrue();
+        expect($except->has('wf3'))->toBeTrue();
+        expect($except->has('wf2'))->toBeFalse();
+    });
+
+    it('returns empty collection when only specified non-existent ids', function () {
+        $registry = new WorkflowRegistry;
+
+        $workflow1 = Workflow::make('wf1')->callback('step', fn () => NodeResult::success([]));
+        $registry->register($workflow1);
+
+        $only = $registry->only(['nonexistent']);
+
+        expect($only->count())->toBe(0);
+    });
+
+    it('returns all workflows when except specified non-existent ids', function () {
+        $registry = new WorkflowRegistry;
+
+        $workflow1 = Workflow::make('wf1')->callback('step', fn () => NodeResult::success([]));
+        $workflow2 = Workflow::make('wf2')->callback('step', fn () => NodeResult::success([]));
+
+        $registry->register($workflow1);
+        $registry->register($workflow2);
+
+        $except = $registry->except(['nonexistent']);
+
+        expect($except->count())->toBe(2);
     });
 });
 

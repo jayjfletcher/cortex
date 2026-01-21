@@ -36,7 +36,7 @@ describe('Tool', function () {
             ->withInput(Schema::object()->property('message', Schema::string())->required('message'))
             ->withHandler(fn (array $input) => ToolResult::success($input['message']));
 
-        $result = $tool->execute(['message' => 'Hello'], new ToolContext());
+        $result = $tool->execute(['message' => 'Hello'], new ToolContext);
 
         expect($result->success)->toBeTrue();
         expect($result->output)->toBe('Hello');
@@ -63,7 +63,7 @@ describe('Tool', function () {
         $tool = Tool::make('no_handler')
             ->withDescription('Tool without handler');
 
-        expect(fn () => $tool->execute([], new ToolContext()))
+        expect(fn () => $tool->execute([], new ToolContext))
             ->toThrow(RuntimeException::class, "No handler defined for tool 'no_handler'");
     });
 
@@ -73,7 +73,7 @@ describe('Tool', function () {
             ->withInput(Schema::object())
             ->withHandler(fn () => ['key' => 'value']);
 
-        $result = $tool->execute([], new ToolContext());
+        $result = $tool->execute([], new ToolContext);
 
         expect($result)->toBeInstanceOf(ToolResult::class);
         expect($result->success)->toBeTrue();
@@ -136,7 +136,7 @@ describe('ToolContext', function () {
     });
 
     it('adds metadata fluently', function () {
-        $context = new ToolContext();
+        $context = new ToolContext;
         $withMeta = $context->withMetadata(['key' => 'value']);
 
         expect($withMeta->get('key'))->toBe('value');

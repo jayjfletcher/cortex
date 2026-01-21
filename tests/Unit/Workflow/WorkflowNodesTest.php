@@ -21,7 +21,6 @@ use JayI\Cortex\Plugins\Workflow\Nodes\ToolNode;
 use JayI\Cortex\Plugins\Workflow\WorkflowContext;
 use JayI\Cortex\Plugins\Workflow\WorkflowResult;
 use JayI\Cortex\Plugins\Workflow\WorkflowState;
-use JayI\Cortex\Plugins\Workflow\WorkflowStatus;
 
 describe('AgentNode', function () {
     beforeEach(function () {
@@ -365,7 +364,7 @@ describe('SubWorkflowNode', function () {
             })
             ->andReturn($workflowResult);
 
-        $node = new SubWorkflowNode('sub-node', $mockWorkflow, fn($input, $state) => ['dynamic' => 'computed']);
+        $node = new SubWorkflowNode('sub-node', $mockWorkflow, fn ($input, $state) => ['dynamic' => 'computed']);
 
         $result = $node->execute([], $this->state);
 

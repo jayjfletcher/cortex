@@ -8,10 +8,7 @@ use JayI\Cortex\Plugins\Workflow\Nodes\CallbackNode;
 use JayI\Cortex\Plugins\Workflow\Nodes\ConditionNode;
 use JayI\Cortex\Plugins\Workflow\Workflow;
 use JayI\Cortex\Plugins\Workflow\WorkflowContext;
-use JayI\Cortex\Plugins\Workflow\WorkflowDefinition;
-use JayI\Cortex\Plugins\Workflow\WorkflowExecutor;
 use JayI\Cortex\Plugins\Workflow\WorkflowState;
-use JayI\Cortex\Plugins\Workflow\WorkflowStatus;
 
 describe('Workflow', function () {
     it('creates a workflow with fluent builder', function () {
@@ -150,7 +147,7 @@ describe('WorkflowDefinition', function () {
 
 describe('WorkflowContext', function () {
     it('creates context with defaults', function () {
-        $context = new WorkflowContext();
+        $context = new WorkflowContext;
 
         expect($context->runId)->toBeNull();
         expect($context->correlationId)->toBeNull();
@@ -172,7 +169,7 @@ describe('WorkflowContext', function () {
     });
 
     it('creates immutable copies', function () {
-        $original = new WorkflowContext();
+        $original = new WorkflowContext;
 
         $withRun = $original->withRunId('run-123');
         expect($withRun->runId)->toBe('run-123');

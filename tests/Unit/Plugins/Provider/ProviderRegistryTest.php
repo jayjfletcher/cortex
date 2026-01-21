@@ -153,6 +153,74 @@ describe('ProviderRegistry', function () {
 
         expect($registry->get('swappable'))->toBe($replacement);
     });
+
+    it('returns only specified providers', function () {
+        $container = Mockery::mock(Container::class);
+        $container->shouldReceive('bound')->andReturn(false);
+        $provider1 = Mockery::mock(ProviderContract::class);
+        $provider2 = Mockery::mock(ProviderContract::class);
+        $provider3 = Mockery::mock(ProviderContract::class);
+
+        $registry = new ProviderRegistry($container);
+        $registry->register('first', $provider1);
+        $registry->register('second', $provider2);
+        $registry->register('third', $provider3);
+
+        $only = $registry->only(['first', 'third']);
+
+        expect($only->count())->toBe(2);
+        expect($only->has('first'))->toBeTrue();
+        expect($only->has('third'))->toBeTrue();
+        expect($only->has('second'))->toBeFalse();
+    });
+
+    it('returns all providers except specified ones', function () {
+        $container = Mockery::mock(Container::class);
+        $container->shouldReceive('bound')->andReturn(false);
+        $provider1 = Mockery::mock(ProviderContract::class);
+        $provider2 = Mockery::mock(ProviderContract::class);
+        $provider3 = Mockery::mock(ProviderContract::class);
+
+        $registry = new ProviderRegistry($container);
+        $registry->register('first', $provider1);
+        $registry->register('second', $provider2);
+        $registry->register('third', $provider3);
+
+        $except = $registry->except(['second']);
+
+        expect($except->count())->toBe(2);
+        expect($except->has('first'))->toBeTrue();
+        expect($except->has('third'))->toBeTrue();
+        expect($except->has('second'))->toBeFalse();
+    });
+
+    it('returns empty collection when only specified non-existent ids', function () {
+        $container = Mockery::mock(Container::class);
+        $container->shouldReceive('bound')->andReturn(false);
+        $provider1 = Mockery::mock(ProviderContract::class);
+
+        $registry = new ProviderRegistry($container);
+        $registry->register('first', $provider1);
+
+        $only = $registry->only(['nonexistent']);
+
+        expect($only->count())->toBe(0);
+    });
+
+    it('returns all providers when except specified non-existent ids', function () {
+        $container = Mockery::mock(Container::class);
+        $container->shouldReceive('bound')->andReturn(false);
+        $provider1 = Mockery::mock(ProviderContract::class);
+        $provider2 = Mockery::mock(ProviderContract::class);
+
+        $registry = new ProviderRegistry($container);
+        $registry->register('first', $provider1);
+        $registry->register('second', $provider2);
+
+        $except = $registry->except(['nonexistent']);
+
+        expect($except->count())->toBe(2);
+    });
 });
 
 describe('ProviderException', function () {

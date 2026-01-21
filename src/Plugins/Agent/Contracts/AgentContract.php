@@ -58,6 +58,11 @@ interface AgentContract
     public function memory(): ?MemoryContract;
 
     /**
+     * Get the MCP servers for this agent.
+     */
+    public function mcpServers(): \JayI\Cortex\Plugins\Mcp\McpServerCollection;
+
+    /**
      * Run the agent with input.
      *
      * @param  string|array<string, mixed>  $input

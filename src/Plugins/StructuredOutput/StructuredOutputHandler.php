@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace JayI\Cortex\Plugins\StructuredOutput;
 
-use JayI\Cortex\Exceptions\StructuredOutputException;
 use JayI\Cortex\Plugins\Chat\ChatRequest;
 use JayI\Cortex\Plugins\Chat\ChatResponse;
 use JayI\Cortex\Plugins\Chat\Messages\Message;

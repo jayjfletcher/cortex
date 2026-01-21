@@ -60,7 +60,7 @@ describe('Tool', function () {
                 return ToolResult::success("Hello, {$input['name']}!");
             });
 
-        $context = new ToolContext();
+        $context = new ToolContext;
         $result = $tool->execute(['name' => 'World'], $context);
 
         expect($result->success)->toBeTrue();
@@ -83,7 +83,7 @@ describe('Tool', function () {
     test('throws when executing without handler', function () {
         $tool = Tool::make('no_handler');
 
-        expect(fn () => $tool->execute([], new ToolContext()))
+        expect(fn () => $tool->execute([], new ToolContext))
             ->toThrow(RuntimeException::class);
     });
 
@@ -93,7 +93,7 @@ describe('Tool', function () {
                 return ['data' => 'value'];
             });
 
-        $result = $tool->execute([], new ToolContext());
+        $result = $tool->execute([], new ToolContext);
 
         expect($result)->toBeInstanceOf(ToolResult::class);
         expect($result->success)->toBeTrue();
@@ -117,7 +117,8 @@ describe('Tool', function () {
 
     test('creates tool from invokable class', function () {
         // Define a simple invokable class
-        $invokableClass = new class {
+        $invokableClass = new class
+        {
             public function __invoke(string $name, int $count = 1): string
             {
                 return str_repeat($name, $count);
@@ -134,7 +135,7 @@ describe('Tool', function () {
                 return $invokableClass(...array_values($input));
             });
 
-        $context = new ToolContext();
+        $context = new ToolContext;
         $result = $tool->execute(['name' => 'Hi', 'count' => 3], $context);
 
         expect($result->success)->toBeTrue();
@@ -249,7 +250,7 @@ describe('ToolResult', function () {
 
 describe('ToolContext', function () {
     test('creates empty context', function () {
-        $context = new ToolContext();
+        $context = new ToolContext;
 
         expect($context->conversationId)->toBeNull();
         expect($context->agentId)->toBeNull();
@@ -277,7 +278,7 @@ describe('ToolContext', function () {
     });
 
     test('adds metadata with withMetadata', function () {
-        $context = (new ToolContext())
+        $context = (new ToolContext)
             ->withMetadata(['key' => 'value']);
 
         expect($context->metadata['key'])->toBe('value');
@@ -471,7 +472,7 @@ describe('ToolCollection', function () {
 
 describe('ToolAttribute', function () {
     test('creates with defaults', function () {
-        $attr = new ToolAttribute();
+        $attr = new ToolAttribute;
 
         expect($attr->name)->toBeNull();
         expect($attr->description)->toBeNull();
@@ -496,7 +497,7 @@ describe('ToolAttribute', function () {
 
 describe('ToolParameter', function () {
     test('creates with defaults', function () {
-        $attr = new ToolParameter();
+        $attr = new ToolParameter;
 
         expect($attr->description)->toBeNull();
         expect($attr->type)->toBeNull();

@@ -21,6 +21,14 @@ use JayI\Cortex\Plugins\Tool\Tool;
 use JayI\Cortex\Plugins\Tool\ToolExecutor;
 use JayI\Cortex\Plugins\Tool\ToolResult;
 
+beforeEach(function () {
+    // Mock the plugin manager to allow cross-plugin methods (e.g., Agent->addTool())
+    $globalPluginManager = Mockery::mock(PluginManagerContract::class);
+    $globalPluginManager->shouldReceive('has')->andReturn(true);
+    $globalPluginManager->shouldReceive('applyHooks')->andReturnUsing(fn ($hook, ...$args) => $args[0] ?? null);
+    app()->instance(PluginManagerContract::class, $globalPluginManager);
+});
+
 describe('SimpleAgentLoop', function () {
     it('executes agent with simple text response', function () {
         $chatClient = Mockery::mock(ChatClientContract::class);
@@ -47,7 +55,7 @@ describe('SimpleAgentLoop', function () {
             ->withSystemPrompt('You are helpful.')
             ->withMaxIterations(10);
 
-        $result = $loop->execute($agent, 'Hello!', new AgentContext());
+        $result = $loop->execute($agent, 'Hello!', new AgentContext);
 
         expect($result)->toBeInstanceOf(AgentResponse::class);
         expect($result->stopReason)->toBe(AgentStopReason::Completed);
@@ -101,7 +109,7 @@ describe('SimpleAgentLoop', function () {
             ->withMaxIterations(10)
             ->addTool($tool);
 
-        $result = $loop->execute($agent, 'What is the weather in NYC?', new AgentContext());
+        $result = $loop->execute($agent, 'What is the weather in NYC?', new AgentContext);
 
         expect($result->stopReason)->toBe(AgentStopReason::Completed);
         expect($result->content)->toBe('The weather in NYC is sunny.');
@@ -146,7 +154,7 @@ describe('SimpleAgentLoop', function () {
             ->withMaxIterations(10)
             ->addTool($tool);
 
-        $result = $loop->execute($agent, 'Give me a final answer', new AgentContext());
+        $result = $loop->execute($agent, 'Give me a final answer', new AgentContext);
 
         expect($result->stopReason)->toBe(AgentStopReason::ToolStopped);
         expect($result->iterations)->toHaveCount(1);
@@ -190,7 +198,7 @@ describe('SimpleAgentLoop', function () {
             ->withMaxIterations(3) // Low limit
             ->addTool($tool);
 
-        $result = $loop->execute($agent, 'Loop please', new AgentContext());
+        $result = $loop->execute($agent, 'Loop please', new AgentContext);
 
         expect($result->stopReason)->toBe(AgentStopReason::MaxIterations);
         expect($result->iterations)->toHaveCount(3);
@@ -233,7 +241,7 @@ describe('SimpleAgentLoop', function () {
             ->withMaxIterations(10);
         // No tools registered
 
-        $result = $loop->execute($agent, 'Call nonexistent tool', new AgentContext());
+        $result = $loop->execute($agent, 'Call nonexistent tool', new AgentContext);
 
         expect($result->stopReason)->toBe(AgentStopReason::Completed);
         expect($result->iterations)->toHaveCount(2);
@@ -267,7 +275,7 @@ describe('SimpleAgentLoop', function () {
             ->user('Hi there')
             ->assistant('Hello!');
 
-        $context = (new AgentContext())->withHistory($history);
+        $context = (new AgentContext)->withHistory($history);
 
         $result = $loop->execute($agent, 'Do you remember?', $context);
 
@@ -294,7 +302,7 @@ describe('SimpleAgentLoop', function () {
 
         $loop = new SimpleAgentLoop($chatClient, $toolExecutor, $pluginManager);
 
-        $memory = new BufferMemory();
+        $memory = new BufferMemory;
 
         $agent = Agent::make('memory-agent')
             ->withSystemPrompt('You remember things.')
@@ -303,7 +311,7 @@ describe('SimpleAgentLoop', function () {
 
         expect($memory->isEmpty())->toBeTrue();
 
-        $result = $loop->execute($agent, 'Remember this', new AgentContext());
+        $result = $loop->execute($agent, 'Remember this', new AgentContext);
 
         expect($result->stopReason)->toBe(AgentStopReason::Completed);
         expect($memory->isEmpty())->toBeFalse();
@@ -355,7 +363,7 @@ describe('SimpleAgentLoop', function () {
             ->withMaxIterations(10)
             ->addTool($tool);
 
-        $result = $loop->execute($agent, 'Test usage', new AgentContext());
+        $result = $loop->execute($agent, 'Test usage', new AgentContext);
 
         expect($result->totalUsage->inputTokens)->toBe(180); // 100 + 80
         expect($result->totalUsage->outputTokens)->toBe(90); // 50 + 40
@@ -385,7 +393,7 @@ describe('SimpleAgentLoop', function () {
             ->withSystemPrompt('You process arrays.')
             ->withMaxIterations(10);
 
-        $result = $loop->execute($agent, ['key' => 'value', 'nested' => ['a' => 1]], new AgentContext());
+        $result = $loop->execute($agent, ['key' => 'value', 'nested' => ['a' => 1]], new AgentContext);
 
         expect($result->stopReason)->toBe(AgentStopReason::Completed);
     });

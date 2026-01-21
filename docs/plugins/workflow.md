@@ -331,6 +331,7 @@ Register and retrieve workflows:
 
 ```php
 use JayI\Cortex\Plugins\Workflow\Contracts\WorkflowRegistryContract;
+use JayI\Cortex\Plugins\Workflow\WorkflowCollection;
 
 $registry = app(WorkflowRegistryContract::class);
 
@@ -345,8 +346,14 @@ if ($registry->has('my-workflow')) {
     // ...
 }
 
-// Get all workflows
+// Get all workflows (returns WorkflowCollection)
 $all = $registry->all();
+
+// Get specific workflows (returns WorkflowCollection)
+$subset = $registry->only(['process-order', 'approval-workflow']);
+
+// Get all except specified (returns WorkflowCollection)
+$filtered = $registry->except(['deprecated-workflow']);
 ```
 
 ## Custom Executor
@@ -487,6 +494,39 @@ if ($result->isPaused()) {
 
 echo "Order status: " . $result->get('status');
 ```
+
+## Error Handling
+
+### Plugin Dependency Exceptions
+
+The `Workflow` class requires specific plugins to be enabled for certain node types. A `PluginException` is thrown if the required plugin is not registered:
+
+```php
+use JayI\Cortex\Plugins\Workflow\Workflow;
+use JayI\Cortex\Exceptions\PluginException;
+
+// Requires 'agent' plugin to be enabled
+try {
+    $workflow = Workflow::make('my-workflow')
+        ->agent('analyze', 'data-analyzer');  // Throws if agent plugin disabled
+} catch (PluginException $e) {
+    // "Plugin [agent] is disabled."
+}
+
+// Requires 'tool' plugin to be enabled
+try {
+    $workflow = Workflow::make('my-workflow')
+        ->tool('search', 'web-search');  // Throws if tool plugin disabled
+} catch (PluginException $e) {
+    // "Plugin [tool] is disabled."
+}
+```
+
+**Methods requiring `agent` plugin:**
+- `agent()` - Add an agent node
+
+**Methods requiring `tool` plugin:**
+- `tool()` - Add a tool node
 
 ## API Reference
 

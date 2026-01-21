@@ -88,7 +88,7 @@ class CortexServiceProvider extends ServiceProvider
                 return $app->make($resolverClass);
             }
 
-            return new NullTenantResolver();
+            return new NullTenantResolver;
         });
 
         $this->app->singleton(TenantManager::class, function ($app) {
@@ -153,7 +153,7 @@ class CortexServiceProvider extends ServiceProvider
             'prompt' => \JayI\Cortex\Plugins\Prompt\PromptPlugin::class,
             'usage' => \JayI\Cortex\Plugins\Usage\UsagePlugin::class,
             'cache' => \JayI\Cortex\Plugins\Cache\CachePlugin::class,
-            'context' => \JayI\Cortex\Plugins\Context\ContextPlugin::class,
+            'context-manager' => \JayI\Cortex\Plugins\ContextManager\ContextManagerPlugin::class,
         ];
     }
 }

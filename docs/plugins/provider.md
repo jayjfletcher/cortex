@@ -67,6 +67,7 @@ Access providers through the registry:
 
 ```php
 use JayI\Cortex\Plugins\Provider\Contracts\ProviderRegistryContract;
+use JayI\Cortex\Plugins\Provider\ProviderCollection;
 
 $registry = app(ProviderRegistryContract::class);
 
@@ -79,8 +80,14 @@ $provider = $registry->get('bedrock');
 // Check if provider exists
 $registry->has('bedrock'); // true
 
-// List all providers
+// List all providers (returns ProviderCollection)
 $providers = $registry->all();
+
+// Get specific providers (returns ProviderCollection)
+$subset = $registry->only(['bedrock', 'openai']);
+
+// Get all except specified (returns ProviderCollection)
+$filtered = $registry->except(['deprecated-provider']);
 ```
 
 ## Provider Capabilities

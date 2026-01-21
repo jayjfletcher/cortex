@@ -5,7 +5,6 @@ declare(strict_types=1);
 use JayI\Cortex\Exceptions\McpException;
 use JayI\Cortex\Plugins\Mcp\Contracts\McpServerContract;
 use JayI\Cortex\Plugins\Mcp\McpRegistry;
-use JayI\Cortex\Plugins\Mcp\McpTransport;
 
 describe('McpRegistry', function () {
     beforeEach(function () {
@@ -27,7 +26,7 @@ describe('McpRegistry', function () {
     });
 
     test('throws exception for non-existent server', function () {
-        expect(fn() => $this->registry->get('unknown'))
+        expect(fn () => $this->registry->get('unknown'))
             ->toThrow(McpException::class);
     });
 
@@ -78,5 +77,75 @@ describe('McpRegistry', function () {
         $this->registry->register($server2);
 
         $this->registry->disconnectAll();
+    });
+
+    test('returns only specified servers', function () {
+        $server1 = Mockery::mock(McpServerContract::class);
+        $server1->shouldReceive('id')->andReturn('server-1');
+
+        $server2 = Mockery::mock(McpServerContract::class);
+        $server2->shouldReceive('id')->andReturn('server-2');
+
+        $server3 = Mockery::mock(McpServerContract::class);
+        $server3->shouldReceive('id')->andReturn('server-3');
+
+        $this->registry->register($server1);
+        $this->registry->register($server2);
+        $this->registry->register($server3);
+
+        $only = $this->registry->only(['server-1', 'server-3']);
+
+        expect($only->count())->toBe(2);
+        expect($only->has('server-1'))->toBeTrue();
+        expect($only->has('server-3'))->toBeTrue();
+        expect($only->has('server-2'))->toBeFalse();
+    });
+
+    test('returns all servers except specified ones', function () {
+        $server1 = Mockery::mock(McpServerContract::class);
+        $server1->shouldReceive('id')->andReturn('server-1');
+
+        $server2 = Mockery::mock(McpServerContract::class);
+        $server2->shouldReceive('id')->andReturn('server-2');
+
+        $server3 = Mockery::mock(McpServerContract::class);
+        $server3->shouldReceive('id')->andReturn('server-3');
+
+        $this->registry->register($server1);
+        $this->registry->register($server2);
+        $this->registry->register($server3);
+
+        $except = $this->registry->except(['server-2']);
+
+        expect($except->count())->toBe(2);
+        expect($except->has('server-1'))->toBeTrue();
+        expect($except->has('server-3'))->toBeTrue();
+        expect($except->has('server-2'))->toBeFalse();
+    });
+
+    test('returns empty collection when only specified non-existent ids', function () {
+        $server1 = Mockery::mock(McpServerContract::class);
+        $server1->shouldReceive('id')->andReturn('server-1');
+
+        $this->registry->register($server1);
+
+        $only = $this->registry->only(['nonexistent']);
+
+        expect($only->count())->toBe(0);
+    });
+
+    test('returns all servers when except specified non-existent ids', function () {
+        $server1 = Mockery::mock(McpServerContract::class);
+        $server1->shouldReceive('id')->andReturn('server-1');
+
+        $server2 = Mockery::mock(McpServerContract::class);
+        $server2->shouldReceive('id')->andReturn('server-2');
+
+        $this->registry->register($server1);
+        $this->registry->register($server2);
+
+        $except = $this->registry->except(['nonexistent']);
+
+        expect($except->count())->toBe(2);
     });
 });

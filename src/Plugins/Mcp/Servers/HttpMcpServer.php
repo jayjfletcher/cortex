@@ -37,6 +37,29 @@ use JayI\Cortex\Plugins\Tool\ToolResult;
  *     ],
  * ],
  * ```
+ * @example Using an invokable class for dynamic headers:
+ * ```php
+ * 'mcp' => [
+ *     'servers' => [
+ *         'remote-api' => [
+ *             'transport' => 'http',
+ *             'url' => 'https://mcp-server.example.com/rpc',
+ *             'headers' => App\Mcp\Headers\DynamicAuthHeaders::class,
+ *         ],
+ *     ],
+ * ],
+ * ```
+ *
+ * The invokable class should return an array of headers:
+ * ```php
+ * class DynamicAuthHeaders
+ * {
+ *     public function __invoke(): array
+ *     {
+ *         return ['Authorization' => 'Bearer ' . $this->getToken()];
+ *     }
+ * }
+ * ```
  *
  * @see https://spec.modelcontextprotocol.io/ MCP Specification
  */
@@ -62,16 +85,24 @@ class HttpMcpServer implements McpServerContract
     protected array $cachedPrompts = [];
 
     /**
-     * @param  array<string, string>  $headers  Additional headers for requests
+     * @var callable|null Resolved header generator callable
+     */
+    protected $headerGenerator = null;
+
+    /**
+     * @param  array<string, string>|callable|class-string  $headers  Additional headers for requests.
+     *                                                                Can be an array, a callable, or an invokable class name.
      */
     public function __construct(
         protected string $serverId,
         protected string $serverName,
         protected string $url,
-        protected array $headers = [],
+        protected mixed $headers = [],
         protected int $timeout = 30,
         protected bool $verifySsl = true,
-    ) {}
+    ) {
+        $this->resolveHeaderGenerator();
+    }
 
     /**
      * Create from config array.
@@ -318,6 +349,50 @@ class HttpMcpServer implements McpServerContract
     }
 
     /**
+     * Resolve the header generator from the headers configuration.
+     */
+    protected function resolveHeaderGenerator(): void
+    {
+        if (is_array($this->headers)) {
+            $this->headerGenerator = fn (): array => $this->headers;
+
+            return;
+        }
+
+        if (is_callable($this->headers)) {
+            $this->headerGenerator = $this->headers;
+
+            return;
+        }
+
+        if (is_string($this->headers) && class_exists($this->headers)) {
+            $instance = app($this->headers);
+
+            if (is_callable($instance)) {
+                $this->headerGenerator = $instance;
+
+                return;
+            }
+        }
+
+        $this->headerGenerator = fn (): array => [];
+    }
+
+    /**
+     * Get the resolved headers for requests.
+     *
+     * @return array<string, string>
+     */
+    protected function getHeaders(): array
+    {
+        if ($this->headerGenerator === null) {
+            return [];
+        }
+
+        return ($this->headerGenerator)();
+    }
+
+    /**
      * Create an HTTP client instance.
      */
     protected function createClient(): PendingRequest
@@ -326,7 +401,7 @@ class HttpMcpServer implements McpServerContract
             ->withHeaders(array_merge([
                 'Content-Type' => 'application/json',
                 'Accept' => 'application/json',
-            ], $this->headers));
+            ], $this->getHeaders()));
 
         if (! $this->verifySsl) {
             $client->withoutVerifying();

@@ -180,6 +180,7 @@ The registry manages tool discovery and access:
 
 ```php
 use JayI\Cortex\Plugins\Tool\Contracts\ToolRegistryContract;
+use JayI\Cortex\Plugins\Tool\ToolCollection;
 
 $registry = app(ToolRegistryContract::class);
 
@@ -192,11 +193,17 @@ $tool = $registry->get('get_weather');
 // Check existence
 $registry->has('get_weather');
 
-// Get all tools
+// Get all tools (returns ToolCollection)
 $tools = $registry->all();
 
-// Get as collection
-$collection = $registry->collection();
+// Get specific tools by name (returns ToolCollection)
+$subset = $registry->only(['get_weather', 'search_web']);
+
+// Get all except specified (returns ToolCollection)
+$filtered = $registry->except(['deprecated_tool']);
+
+// Create a collection from specific tool names
+$collection = $registry->collection('get_weather', 'search_web');
 ```
 
 ## Tool Executor
@@ -229,7 +236,7 @@ use JayI\Cortex\Plugins\Chat\ChatRequestBuilder;
 $response = (new ChatRequestBuilder())
     ->system('You can check the weather using tools.')
     ->message('What is the weather in Paris?')
-    ->tools([$weatherTool])
+    ->withTools([$weatherTool])
     ->send();
 
 // Check if tool use is requested
@@ -426,7 +433,7 @@ $messages = MessageCollection::make()
 
 $response = (new ChatRequestBuilder())
     ->messages($messages)
-    ->tools($tools)
+    ->withTools($tools)
     ->send();
 
 // Handle tool calls
@@ -442,7 +449,7 @@ while ($response->requiresToolExecution()) {
 
     $response = (new ChatRequestBuilder())
         ->messages($messages)
-        ->tools($tools)
+        ->withTools($tools)
         ->send();
 }
 

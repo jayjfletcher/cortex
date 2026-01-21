@@ -86,12 +86,15 @@ class McpPlugin implements PluginContract
     {
         $registry = $this->container->make(McpRegistryContract::class);
 
-        // Register servers from config
-        $servers = $this->config['servers'] ?? [];
-        foreach ($servers as $id => $serverConfig) {
-            $server = $this->createServerFromConfig($id, $serverConfig);
-            if ($server !== null) {
-                $registry->register($server);
+        // Register servers from config (if discovery is enabled)
+        $discoveryEnabled = $this->config['discovery']['enabled'] ?? true;
+        if ($discoveryEnabled) {
+            $servers = $this->config['servers'] ?? [];
+            foreach ($servers as $id => $serverConfig) {
+                $server = $this->createServerFromConfig($id, $serverConfig);
+                if ($server !== null) {
+                    $registry->register($server);
+                }
             }
         }
 

@@ -269,6 +269,81 @@ Plugins declare dependencies via `dependencies()`. The plugin manager:
 // Boot order: A -> B -> C
 ```
 
+## Cross-Plugin Functionality
+
+Some methods in Cortex require specific plugins to be enabled. These methods will throw a `PluginException` if the required plugin is not registered.
+
+### Agent Plugin Cross-Dependencies
+
+The `Agent` class requires certain plugins for specific methods:
+
+```php
+use JayI\Cortex\Plugins\Agent\Agent;
+
+// Requires 'tool' plugin to be enabled
+$agent = Agent::make('my-agent')
+    ->withTools($tools)    // Throws PluginException if tool plugin disabled
+    ->addTool($tool);      // Throws PluginException if tool plugin disabled
+
+// Requires 'mcp' plugin to be enabled
+$agent = Agent::make('my-agent')
+    ->withMcpServers($servers)  // Throws PluginException if mcp plugin disabled
+    ->addMcpServer($server);    // Throws PluginException if mcp plugin disabled
+```
+
+### ChatRequestBuilder Cross-Dependencies
+
+The `ChatRequestBuilder` class also requires certain plugins:
+
+```php
+use JayI\Cortex\Plugins\Chat\ChatRequestBuilder;
+
+$builder = new ChatRequestBuilder();
+
+// Requires 'tool' plugin
+$builder->withTools($tools);  // Throws PluginException if tool plugin disabled
+
+// Requires 'mcp' plugin
+$builder->withMcpServers($servers);  // Throws PluginException if mcp plugin disabled
+$builder->addMcpServer($server);      // Throws PluginException if mcp plugin disabled
+```
+
+### Workflow Plugin Cross-Dependencies
+
+The `Workflow` class requires plugins for certain node types:
+
+```php
+use JayI\Cortex\Plugins\Workflow\Workflow;
+
+$workflow = Workflow::make('my-workflow');
+
+// Requires 'agent' plugin
+$workflow->agent('node-id', $agent);  // Throws PluginException if agent plugin disabled
+
+// Requires 'tool' plugin
+$workflow->tool('node-id', $tool);    // Throws PluginException if tool plugin disabled
+```
+
+### Using the RequiresPlugins Trait
+
+If you're building custom classes that depend on other plugins, you can use the `RequiresPlugins` trait:
+
+```php
+use JayI\Cortex\Support\Concerns\RequiresPlugins;
+
+class MyCustomClass
+{
+    use RequiresPlugins;
+
+    public function doSomethingWithTools(): void
+    {
+        $this->ensurePluginEnabled('tool');
+
+        // Safe to use tool functionality
+    }
+}
+```
+
 ## Error Handling
 
 The plugin system throws `PluginException` for common errors:
@@ -290,4 +365,7 @@ PluginException::circularDependency($pluginId);
 
 // Extension point not found
 PluginException::extensionPointNotFound($name);
+
+// Plugin is disabled (for cross-plugin functionality)
+PluginException::disabled($pluginId);
 ```

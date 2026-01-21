@@ -10,7 +10,6 @@ use JayI\Cortex\Plugins\Chat\Usage;
 use JayI\Cortex\Plugins\Schema\Schema;
 use JayI\Cortex\Plugins\Schema\ValidationError;
 use JayI\Cortex\Plugins\StructuredOutput\StructuredResponse;
-use Spatie\LaravelData\Data;
 
 describe('StructuredResponse', function () {
     it('creates a valid response', function () {

@@ -16,6 +16,7 @@ use JayI\Cortex\Plugins\Tool\Contracts\ToolRegistryContract;
 class ToolExecutor
 {
     use DispatchesCortexEvents;
+
     public function __construct(
         protected ToolRegistryContract $registry,
         protected ?PluginManagerContract $pluginManager = null,
@@ -29,7 +30,7 @@ class ToolExecutor
     public function execute(string $name, array $input, ?ToolContext $context = null): ToolResult
     {
         $tool = $this->registry->get($name);
-        $context ??= new ToolContext();
+        $context ??= new ToolContext;
 
         return $this->executeTool($tool, $input, $context);
     }
@@ -41,7 +42,7 @@ class ToolExecutor
      */
     public function executeTool(ToolContract $tool, array $input, ?ToolContext $context = null): ToolResult
     {
-        $context ??= new ToolContext();
+        $context ??= new ToolContext;
 
         // Validate input
         $validation = $tool->inputSchema()->validate($input);
@@ -118,7 +119,7 @@ class ToolExecutor
      */
     public function executeMany(array $toolCalls, ?ToolContext $context = null): array
     {
-        $context ??= new ToolContext();
+        $context ??= new ToolContext;
         $results = [];
 
         foreach ($toolCalls as $call) {

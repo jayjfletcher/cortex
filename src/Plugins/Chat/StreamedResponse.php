@@ -9,7 +9,6 @@ use Generator;
 use IteratorAggregate;
 use JayI\Cortex\Plugins\Chat\Messages\Message;
 use JayI\Cortex\Plugins\Chat\Messages\TextContent;
-use JayI\Cortex\Plugins\Chat\Messages\ToolUseContent;
 use Traversable;
 
 /**

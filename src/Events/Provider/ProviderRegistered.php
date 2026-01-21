@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace JayI\Cortex\Events\Provider;
 
-use JayI\Cortex\Plugins\Provider\Contracts\ProviderContract;
 use JayI\Cortex\Events\CortexEvent;
+use JayI\Cortex\Plugins\Provider\Contracts\ProviderContract;
 
 class ProviderRegistered extends CortexEvent
 {

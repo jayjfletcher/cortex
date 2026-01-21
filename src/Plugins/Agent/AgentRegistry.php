@@ -4,24 +4,25 @@ declare(strict_types=1);
 
 namespace JayI\Cortex\Plugins\Agent;
 
-use Illuminate\Support\Collection;
 use JayI\Cortex\Exceptions\AgentException;
 use JayI\Cortex\Plugins\Agent\Contracts\AgentContract;
 use JayI\Cortex\Plugins\Agent\Contracts\AgentRegistryContract;
 
 class AgentRegistry implements AgentRegistryContract
 {
-    /**
-     * @var array<string, AgentContract>
-     */
-    protected array $agents = [];
+    protected AgentCollection $agents;
+
+    public function __construct()
+    {
+        $this->agents = AgentCollection::make([]);
+    }
 
     /**
      * {@inheritdoc}
      */
     public function register(AgentContract $agent): void
     {
-        $this->agents[$agent->id()] = $agent;
+        $this->agents = $this->agents->add($agent);
     }
 
     /**
@@ -33,7 +34,7 @@ class AgentRegistry implements AgentRegistryContract
             throw AgentException::notFound($id);
         }
 
-        return $this->agents[$id];
+        return $this->agents->get($id);
     }
 
     /**
@@ -41,15 +42,31 @@ class AgentRegistry implements AgentRegistryContract
      */
     public function has(string $id): bool
     {
-        return isset($this->agents[$id]);
+        return $this->agents->has($id);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function all(): Collection
+    public function all(): AgentCollection
     {
-        return collect($this->agents);
+        return $this->agents;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function only(array $ids): AgentCollection
+    {
+        return $this->agents->only($ids);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function except(array $ids): AgentCollection
+    {
+        return $this->agents->except($ids);
     }
 
     /**

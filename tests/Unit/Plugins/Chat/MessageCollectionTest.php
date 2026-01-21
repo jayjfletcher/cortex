@@ -9,7 +9,7 @@ use JayI\Cortex\Plugins\Provider\Contracts\ProviderContract;
 
 describe('MessageCollection', function () {
     it('creates empty collection', function () {
-        $collection = new MessageCollection();
+        $collection = new MessageCollection;
 
         expect($collection->isEmpty())->toBeTrue();
         expect($collection->count())->toBe(0);
@@ -36,14 +36,14 @@ describe('MessageCollection', function () {
     });
 
     it('adds message', function () {
-        $collection = new MessageCollection();
+        $collection = new MessageCollection;
         $collection->add(Message::user('Hello'));
 
         expect($collection->count())->toBe(1);
     });
 
     it('pushes multiple messages', function () {
-        $collection = new MessageCollection();
+        $collection = new MessageCollection;
         $collection->push(
             Message::user('Hello'),
             Message::assistant('Hi there'),
@@ -53,7 +53,7 @@ describe('MessageCollection', function () {
     });
 
     it('prepends message', function () {
-        $collection = new MessageCollection();
+        $collection = new MessageCollection;
         $collection->add(Message::user('Second'));
         $collection->prepend(Message::system('First'));
 
@@ -61,28 +61,28 @@ describe('MessageCollection', function () {
     });
 
     it('adds system message', function () {
-        $collection = new MessageCollection();
+        $collection = new MessageCollection;
         $collection->system('System prompt');
 
         expect($collection->first()->role)->toBe(MessageRole::System);
     });
 
     it('adds user message', function () {
-        $collection = new MessageCollection();
+        $collection = new MessageCollection;
         $collection->user('User message');
 
         expect($collection->first()->role)->toBe(MessageRole::User);
     });
 
     it('adds assistant message', function () {
-        $collection = new MessageCollection();
+        $collection = new MessageCollection;
         $collection->assistant('Assistant response');
 
         expect($collection->first()->role)->toBe(MessageRole::Assistant);
     });
 
     it('gets last message', function () {
-        $collection = new MessageCollection();
+        $collection = new MessageCollection;
         $collection->user('First');
         $collection->assistant('Last');
 
@@ -90,13 +90,13 @@ describe('MessageCollection', function () {
     });
 
     it('returns null for last on empty collection', function () {
-        $collection = new MessageCollection();
+        $collection = new MessageCollection;
 
         expect($collection->last())->toBeNull();
     });
 
     it('gets first message', function () {
-        $collection = new MessageCollection();
+        $collection = new MessageCollection;
         $collection->user('First');
         $collection->assistant('Second');
 
@@ -104,13 +104,13 @@ describe('MessageCollection', function () {
     });
 
     it('returns null for first on empty collection', function () {
-        $collection = new MessageCollection();
+        $collection = new MessageCollection;
 
         expect($collection->first())->toBeNull();
     });
 
     it('filters by role', function () {
-        $collection = new MessageCollection();
+        $collection = new MessageCollection;
         $collection->system('System');
         $collection->user('User 1');
         $collection->assistant('Assistant');
@@ -122,7 +122,7 @@ describe('MessageCollection', function () {
     });
 
     it('filters without system messages', function () {
-        $collection = new MessageCollection();
+        $collection = new MessageCollection;
         $collection->system('System');
         $collection->user('User');
         $collection->assistant('Assistant');
@@ -134,7 +134,7 @@ describe('MessageCollection', function () {
     });
 
     it('estimates tokens', function () {
-        $collection = new MessageCollection();
+        $collection = new MessageCollection;
         $collection->user('Hello world');
 
         $provider = Mockery::mock(ProviderContract::class);
@@ -146,7 +146,7 @@ describe('MessageCollection', function () {
     });
 
     it('truncates to token limit', function () {
-        $collection = new MessageCollection();
+        $collection = new MessageCollection;
         $collection->system('System'); // 10 tokens
         $collection->user('First message'); // 20 tokens
         $collection->assistant('Response 1'); // 15 tokens
@@ -155,11 +155,20 @@ describe('MessageCollection', function () {
 
         $provider = Mockery::mock(ProviderContract::class);
         $provider->shouldReceive('countTokens')->andReturnUsing(function (Message $msg) {
-            if ($msg->role === MessageRole::System) return 10;
+            if ($msg->role === MessageRole::System) {
+                return 10;
+            }
             $text = $msg->content[0]->text ?? '';
-            if (str_contains($text, 'First')) return 20;
-            if (str_contains($text, 'Response 1')) return 15;
-            if (str_contains($text, 'Second')) return 20;
+            if (str_contains($text, 'First')) {
+                return 20;
+            }
+            if (str_contains($text, 'Response 1')) {
+                return 15;
+            }
+            if (str_contains($text, 'Second')) {
+                return 20;
+            }
+
             return 15;
         });
 
@@ -170,7 +179,7 @@ describe('MessageCollection', function () {
     });
 
     it('is iterable', function () {
-        $collection = new MessageCollection();
+        $collection = new MessageCollection;
         $collection->user('One');
         $collection->user('Two');
 
@@ -184,7 +193,7 @@ describe('MessageCollection', function () {
     });
 
     it('converts to array', function () {
-        $collection = new MessageCollection();
+        $collection = new MessageCollection;
         $collection->user('Hello');
 
         $array = $collection->toArray();
@@ -194,7 +203,7 @@ describe('MessageCollection', function () {
     });
 
     it('gets all messages', function () {
-        $collection = new MessageCollection();
+        $collection = new MessageCollection;
         $collection->user('One');
         $collection->user('Two');
 

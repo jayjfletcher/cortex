@@ -515,4 +515,110 @@ describe('HttpMcpServer', function () {
 
         Http::assertSentCount(5);
     });
+
+    it('accepts array headers in config', function () {
+        Http::fake([
+            '*' => Http::sequence()
+                ->push(['jsonrpc' => '2.0', 'id' => 1, 'result' => []])
+                ->push(['jsonrpc' => '2.0', 'id' => 2])
+                ->push(['jsonrpc' => '2.0', 'id' => 3, 'result' => ['tools' => []]])
+                ->push(['jsonrpc' => '2.0', 'id' => 4, 'result' => ['resources' => []]])
+                ->push(['jsonrpc' => '2.0', 'id' => 5, 'result' => ['prompts' => []]]),
+        ]);
+
+        $server = HttpMcpServer::fromConfig('test', [
+            'url' => 'https://example.com/mcp',
+            'headers' => ['Authorization' => 'Bearer static-token'],
+        ]);
+
+        $server->connect();
+
+        Http::assertSent(function ($request) {
+            return $request->hasHeader('Authorization', 'Bearer static-token');
+        });
+    });
+
+    it('accepts callable headers in config', function () {
+        Http::fake([
+            '*' => Http::sequence()
+                ->push(['jsonrpc' => '2.0', 'id' => 1, 'result' => []])
+                ->push(['jsonrpc' => '2.0', 'id' => 2])
+                ->push(['jsonrpc' => '2.0', 'id' => 3, 'result' => ['tools' => []]])
+                ->push(['jsonrpc' => '2.0', 'id' => 4, 'result' => ['resources' => []]])
+                ->push(['jsonrpc' => '2.0', 'id' => 5, 'result' => ['prompts' => []]]),
+        ]);
+
+        $server = new HttpMcpServer(
+            serverId: 'test',
+            serverName: 'Test',
+            url: 'https://example.com/mcp',
+            headers: fn () => ['X-Custom-Header' => 'dynamic-value'],
+        );
+
+        $server->connect();
+
+        Http::assertSent(function ($request) {
+            return $request->hasHeader('X-Custom-Header', 'dynamic-value');
+        });
+    });
+
+    it('accepts invokable class headers in config', function () {
+        Http::fake([
+            '*' => Http::sequence()
+                ->push(['jsonrpc' => '2.0', 'id' => 1, 'result' => []])
+                ->push(['jsonrpc' => '2.0', 'id' => 2])
+                ->push(['jsonrpc' => '2.0', 'id' => 3, 'result' => ['tools' => []]])
+                ->push(['jsonrpc' => '2.0', 'id' => 4, 'result' => ['resources' => []]])
+                ->push(['jsonrpc' => '2.0', 'id' => 5, 'result' => ['prompts' => []]]),
+        ]);
+
+        $invokableClass = new class
+        {
+            public function __invoke(): array
+            {
+                return ['X-Invokable-Header' => 'invokable-value'];
+            }
+        };
+
+        app()->instance($invokableClass::class, $invokableClass);
+
+        $server = HttpMcpServer::fromConfig('test', [
+            'url' => 'https://example.com/mcp',
+            'headers' => $invokableClass::class,
+        ]);
+
+        $server->connect();
+
+        Http::assertSent(function ($request) {
+            return $request->hasHeader('X-Invokable-Header', 'invokable-value');
+        });
+    });
+
+    it('calls header generator on each request', function () {
+        Http::fake([
+            '*' => Http::sequence()
+                ->push(['jsonrpc' => '2.0', 'id' => 1, 'result' => []])
+                ->push(['jsonrpc' => '2.0', 'id' => 2])
+                ->push(['jsonrpc' => '2.0', 'id' => 3, 'result' => ['tools' => []]])
+                ->push(['jsonrpc' => '2.0', 'id' => 4, 'result' => ['resources' => []]])
+                ->push(['jsonrpc' => '2.0', 'id' => 5, 'result' => ['prompts' => []]]),
+        ]);
+
+        $callCount = 0;
+
+        $server = new HttpMcpServer(
+            serverId: 'test',
+            serverName: 'Test',
+            url: 'https://example.com/mcp',
+            headers: function () use (&$callCount) {
+                $callCount++;
+
+                return ['X-Call-Count' => (string) $callCount];
+            },
+        );
+
+        $server->connect();
+
+        expect($callCount)->toBe(5);
+    });
 });

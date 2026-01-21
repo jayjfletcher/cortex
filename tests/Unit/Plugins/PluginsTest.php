@@ -29,19 +29,7 @@ use JayI\Cortex\Plugins\Resilience\Contracts\ResilienceStrategyContract;
 use JayI\Cortex\Plugins\Resilience\ResiliencePlugin;
 use JayI\Cortex\Plugins\Resilience\ResiliencePolicy;
 use JayI\Cortex\Plugins\StructuredOutput\Contracts\StructuredOutputContract;
-use JayI\Cortex\Plugins\StructuredOutput\StructuredOutputHandler;
 use JayI\Cortex\Plugins\StructuredOutput\StructuredOutputPlugin;
-use JayI\Cortex\Plugins\Usage\UsagePlugin;
-use JayI\Cortex\Plugins\Usage\Contracts\BudgetManagerContract;
-use JayI\Cortex\Plugins\Usage\Contracts\UsageTrackerContract;
-use JayI\Cortex\Plugins\Usage\BudgetManager;
-use JayI\Cortex\Plugins\Usage\InMemoryUsageTracker;
-use JayI\Cortex\Plugins\Mcp\McpPlugin;
-use JayI\Cortex\Plugins\Mcp\Contracts\McpRegistryContract;
-use JayI\Cortex\Plugins\Mcp\McpRegistry;
-use JayI\Cortex\Plugins\Workflow\WorkflowPlugin;
-use JayI\Cortex\Plugins\Workflow\Contracts\WorkflowRegistryContract;
-use JayI\Cortex\Plugins\Workflow\Contracts\WorkflowExecutorContract;
 
 describe('CachePlugin', function () {
     beforeEach(function () {

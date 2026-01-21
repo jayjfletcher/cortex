@@ -6,16 +6,14 @@ use JayI\Cortex\Plugins\Workflow\NodeResult;
 use JayI\Cortex\Plugins\Workflow\Workflow;
 use JayI\Cortex\Plugins\Workflow\WorkflowContext;
 use JayI\Cortex\Plugins\Workflow\WorkflowExecutor;
-use JayI\Cortex\Plugins\Workflow\WorkflowState;
-use JayI\Cortex\Plugins\Workflow\WorkflowStatus;
 
 describe('WorkflowExecutor', function () {
     it('executes a simple single-node workflow', function () {
-        $executor = new WorkflowExecutor();
+        $executor = new WorkflowExecutor;
 
         $workflow = Workflow::make('simple')
             ->callback('step1', fn ($input, $state) => NodeResult::success([
-                'result' => 'Hello, ' . ($input['name'] ?? 'World'),
+                'result' => 'Hello, '.($input['name'] ?? 'World'),
             ]));
 
         $result = $executor->execute($workflow, ['name' => 'Test']);
@@ -25,7 +23,7 @@ describe('WorkflowExecutor', function () {
     });
 
     it('executes a multi-node workflow', function () {
-        $executor = new WorkflowExecutor();
+        $executor = new WorkflowExecutor;
 
         $workflow = Workflow::make('multi')
             ->callback('step1', fn ($input, $state) => NodeResult::success(['a' => 1]))
@@ -41,7 +39,7 @@ describe('WorkflowExecutor', function () {
     });
 
     it('handles node failures', function () {
-        $executor = new WorkflowExecutor();
+        $executor = new WorkflowExecutor;
 
         $workflow = Workflow::make('failing')
             ->callback('step1', fn () => NodeResult::failure('Something went wrong'));
@@ -53,7 +51,7 @@ describe('WorkflowExecutor', function () {
     });
 
     it('handles node exceptions', function () {
-        $executor = new WorkflowExecutor();
+        $executor = new WorkflowExecutor;
 
         $workflow = Workflow::make('throwing')
             ->callback('step1', fn () => throw new RuntimeException('Unexpected error'));
@@ -65,7 +63,7 @@ describe('WorkflowExecutor', function () {
     });
 
     it('handles pause requests', function () {
-        $executor = new WorkflowExecutor();
+        $executor = new WorkflowExecutor;
 
         $workflow = Workflow::make('pausing')
             ->callback('step1', fn () => NodeResult::pause('Waiting for input'));
@@ -77,7 +75,7 @@ describe('WorkflowExecutor', function () {
     });
 
     it('resumes paused workflow', function () {
-        $executor = new WorkflowExecutor();
+        $executor = new WorkflowExecutor;
 
         $workflow = Workflow::make('resumable')
             ->callback('step1', function ($input) {
@@ -87,7 +85,7 @@ describe('WorkflowExecutor', function () {
 
                 return NodeResult::success(['received' => $input['human_input']]);
             })
-            ->callback('step2', fn ($input) => NodeResult::success(['final' => $input['received'] . '!']))
+            ->callback('step2', fn ($input) => NodeResult::success(['final' => $input['received'].'!']))
             ->then('step1', 'step2');
 
         // Initial run - should pause
@@ -101,7 +99,7 @@ describe('WorkflowExecutor', function () {
     });
 
     it('uses conditional edges', function () {
-        $executor = new WorkflowExecutor();
+        $executor = new WorkflowExecutor;
 
         $workflow = Workflow::make('conditional')
             ->callback('check', fn ($input) => NodeResult::success(['value' => $input['value']]))
@@ -118,7 +116,7 @@ describe('WorkflowExecutor', function () {
     });
 
     it('respects max steps limit', function () {
-        $executor = (new WorkflowExecutor())->maxSteps(5);
+        $executor = (new WorkflowExecutor)->maxSteps(5);
 
         $iterations = 0;
         $workflow = Workflow::make('infinite')
@@ -137,7 +135,7 @@ describe('WorkflowExecutor', function () {
     });
 
     it('records execution history', function () {
-        $executor = new WorkflowExecutor();
+        $executor = new WorkflowExecutor;
 
         $workflow = Workflow::make('tracked')
             ->callback('step1', fn () => NodeResult::success(['a' => 1]))
@@ -152,7 +150,7 @@ describe('WorkflowExecutor', function () {
     });
 
     it('preserves state across nodes', function () {
-        $executor = new WorkflowExecutor();
+        $executor = new WorkflowExecutor;
 
         $workflow = Workflow::make('stateful')
             ->callback('step1', fn ($input, $state) => NodeResult::success(['count' => 1]))
@@ -167,7 +165,7 @@ describe('WorkflowExecutor', function () {
     });
 
     it('passes context to workflow', function () {
-        $executor = new WorkflowExecutor();
+        $executor = new WorkflowExecutor;
 
         $workflow = Workflow::make('with-context')
             ->callback('step1', fn () => NodeResult::success(['done' => true]));

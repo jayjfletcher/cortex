@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 use JayI\Cortex\Exceptions\AgentException;
 use JayI\Cortex\Plugins\Agent\Agent;
+use JayI\Cortex\Plugins\Agent\AgentCollection;
 use JayI\Cortex\Plugins\Agent\AgentRegistry;
 
 describe('AgentRegistry', function () {
     it('registers and retrieves an agent', function () {
-        $registry = new AgentRegistry();
+        $registry = new AgentRegistry;
         $agent = Agent::make('test-agent')->withName('Test Agent');
 
         $registry->register($agent);
@@ -18,7 +19,7 @@ describe('AgentRegistry', function () {
     });
 
     it('checks if agent exists', function () {
-        $registry = new AgentRegistry();
+        $registry = new AgentRegistry;
 
         expect($registry->has('nonexistent'))->toBeFalse();
 
@@ -29,14 +30,14 @@ describe('AgentRegistry', function () {
     });
 
     it('throws exception when agent not found', function () {
-        $registry = new AgentRegistry();
+        $registry = new AgentRegistry;
 
         expect(fn () => $registry->get('nonexistent'))
             ->toThrow(AgentException::class);
     });
 
     it('returns all registered agents', function () {
-        $registry = new AgentRegistry();
+        $registry = new AgentRegistry;
 
         $agent1 = Agent::make('agent-1')->withName('Agent 1');
         $agent2 = Agent::make('agent-2')->withName('Agent 2');
@@ -48,7 +49,7 @@ describe('AgentRegistry', function () {
 
         $all = $registry->all();
 
-        expect($all)->toBeInstanceOf(\Illuminate\Support\Collection::class);
+        expect($all)->toBeInstanceOf(AgentCollection::class);
         expect($all->count())->toBe(3);
         expect($all->has('agent-1'))->toBeTrue();
         expect($all->has('agent-2'))->toBeTrue();
@@ -56,7 +57,7 @@ describe('AgentRegistry', function () {
     });
 
     it('overwrites agents with same id', function () {
-        $registry = new AgentRegistry();
+        $registry = new AgentRegistry;
 
         $agent1 = Agent::make('same-id')->withName('First');
         $agent2 = Agent::make('same-id')->withName('Second');
@@ -69,13 +70,76 @@ describe('AgentRegistry', function () {
     });
 
     it('discovers agents from paths', function () {
-        $registry = new AgentRegistry();
+        $registry = new AgentRegistry;
 
         // discover() is a stub that doesn't do anything yet
         $registry->discover(['/path/to/agents']);
 
         // Should not throw
         expect(true)->toBeTrue();
+    });
+
+    it('returns only specified agents', function () {
+        $registry = new AgentRegistry;
+
+        $agent1 = Agent::make('agent-1')->withName('Agent 1');
+        $agent2 = Agent::make('agent-2')->withName('Agent 2');
+        $agent3 = Agent::make('agent-3')->withName('Agent 3');
+
+        $registry->register($agent1);
+        $registry->register($agent2);
+        $registry->register($agent3);
+
+        $only = $registry->only(['agent-1', 'agent-3']);
+
+        expect($only->count())->toBe(2);
+        expect($only->has('agent-1'))->toBeTrue();
+        expect($only->has('agent-3'))->toBeTrue();
+        expect($only->has('agent-2'))->toBeFalse();
+    });
+
+    it('returns all agents except specified ones', function () {
+        $registry = new AgentRegistry;
+
+        $agent1 = Agent::make('agent-1')->withName('Agent 1');
+        $agent2 = Agent::make('agent-2')->withName('Agent 2');
+        $agent3 = Agent::make('agent-3')->withName('Agent 3');
+
+        $registry->register($agent1);
+        $registry->register($agent2);
+        $registry->register($agent3);
+
+        $except = $registry->except(['agent-2']);
+
+        expect($except->count())->toBe(2);
+        expect($except->has('agent-1'))->toBeTrue();
+        expect($except->has('agent-3'))->toBeTrue();
+        expect($except->has('agent-2'))->toBeFalse();
+    });
+
+    it('returns empty collection when only specified non-existent ids', function () {
+        $registry = new AgentRegistry;
+
+        $agent1 = Agent::make('agent-1')->withName('Agent 1');
+        $registry->register($agent1);
+
+        $only = $registry->only(['nonexistent']);
+
+        expect($only->count())->toBe(0);
+    });
+
+    it('returns all agents when except specified non-existent ids', function () {
+        $registry = new AgentRegistry;
+
+        $agent1 = Agent::make('agent-1')->withName('Agent 1');
+        $agent2 = Agent::make('agent-2')->withName('Agent 2');
+
+        $registry->register($agent1);
+        $registry->register($agent2);
+
+        $except = $registry->except(['nonexistent']);
+
+        expect($except->count())->toBe(2);
     });
 });
 

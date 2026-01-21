@@ -13,7 +13,7 @@ class PromptValidationException extends Exception
         public readonly ValidationResult $result,
         string $message = 'Prompt validation failed',
     ) {
-        parent::__construct($message . ': ' . implode(', ', $result->messages()));
+        parent::__construct($message.': '.implode(', ', $result->messages()));
     }
 
     public static function fromResult(ValidationResult $result): self

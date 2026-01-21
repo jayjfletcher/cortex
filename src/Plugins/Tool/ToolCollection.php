@@ -204,7 +204,7 @@ class ToolCollection implements Arrayable, Countable, IteratorAggregate
             return ToolResult::error("Tool '{$name}' not found in collection");
         }
 
-        return $tool->execute($input, $context ?? new ToolContext());
+        return $tool->execute($input, $context ?? new ToolContext);
     }
 
     /**
@@ -223,5 +223,25 @@ class ToolCollection implements Arrayable, Countable, IteratorAggregate
     public function all(): array
     {
         return $this->tools;
+    }
+
+    /**
+     * Get only the specified tools.
+     *
+     * @param  array<int, string>  $names
+     */
+    public function only(array $names): static
+    {
+        return new static(array_intersect_key($this->tools, array_flip($names)));
+    }
+
+    /**
+     * Get all tools except the specified ones.
+     *
+     * @param  array<int, string>  $names
+     */
+    public function except(array $names): static
+    {
+        return new static(array_diff_key($this->tools, array_flip($names)));
     }
 }

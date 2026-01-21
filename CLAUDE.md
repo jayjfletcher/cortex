@@ -37,19 +37,23 @@ The core abstraction is a plugin system with dependency resolution (topological 
 
 **Core Plugins (always loaded):**
 - **Schema** - JSON Schema generation and validation
-- **Provider** - LLM provider abstraction (currently AWS Bedrock)
+- **Provider** - LLM provider abstraction (AWS Bedrock)
 - **Chat** - Chat completion with streaming support
 
-**Optional Plugins (enabled via config):**
-Tool, StructuredOutput, Agent, Workflow, MCP, Resilience, Usage, Guardrail, Cache, ContextManager, Prompt
+**Optional Plugins (enabled via config `cortex.plugins.enabled`):**
+tool, structured-output, agent, workflow, mcp, guardrail, resilience, prompt, usage, cache, context
+
+### Plugin Lifecycle
+
+1. **Registration** (`register()`) - Plugins register container bindings and extension points. Cannot resolve other plugin dependencies yet.
+2. **Boot** (`boot()`) - Called after all plugins registered, in dependency order (topological sort). Safe to resolve cross-plugin dependencies.
 
 ### Key Entry Points
 
-- `src/CortexServiceProvider.php` - Service provider, registers plugins
-- `src/CortexManager.php` - Main public API
+- `src/CortexServiceProvider.php` - Service provider, registers plugins from config
+- `src/CortexManager.php` - Main public API, accessed via `Cortex` facade
 - `src/Support/PluginManager.php` - Plugin registration, boot, and dependency resolution
-- `src/Facades/Cortex.php` - Fluent interface facade
-- `config/cortex.php` - All configuration (~391 lines with extensive comments)
+- `config/cortex.php` - All configuration with extensive comments
 
 ### Plugin Structure
 
@@ -57,36 +61,70 @@ Each plugin follows this pattern:
 ```
 src/Plugins/{PluginName}/
 ├── {PluginName}Plugin.php        # Implements PluginContract
-├── {PluginName}ServiceProvider.php
-├── Contracts/                    # Interfaces
+├── {PluginName}Registry.php      # Implements AbstractRegistry (if applicable)
+├── {PluginName}Collection.php    # Domain-specific collection class
+├── Contracts/                    # Interfaces ({PluginName}Contract, {PluginName}RegistryContract)
 ├── Data/                         # DTOs using spatie/laravel-data
 ├── Exceptions/                   # Plugin-specific exceptions
 └── ...                           # Implementation classes
 ```
 
-Plugins implement `PluginContract` with methods: `name()`, `dependencies()`, `register()`, `boot()`, `provides()`, `hooks()`, `extends()`.
+Plugins implement `PluginContract` with methods: `id()`, `name()`, `version()`, `dependencies()`, `provides()`, `register()`, `boot()`.
 
-### Patterns Used
+### Registry Pattern
 
-- **Fluent Builder** - Tools, Agents, Workflows, ChatRequestBuilder
-- **Service Locator** - Laravel container for DI
-- **Event-Driven** - Events for chat, tool, agent, guardrail, workflow operations
-- **Extension Points** - Plugins declare and consume extension points for collaboration
+Most plugins use a Registry to manage their resources. Registries implement `AbstractRegistry` providing:
+- `register(mixed $item)` - Add an item
+- `get(string $id)` - Retrieve by ID
+- `has(string $id)` - Check existence
+- `all()` / `only()` / `except()` / `filter()` - Query methods
+- `discover(array $paths)` - Auto-discovery from directories
+
+### Collection Classes
+
+Domain-specific collections (e.g., `ToolCollection`, `AgentCollection`) implement `Arrayable`, `Countable`, `IteratorAggregate` with fluent methods: `add()`, `remove()`, `get()`, `has()`, `only()`, `except()`, `filter()`, `merge()`, `map()`.
+
+### Cross-Plugin Dependencies
+
+Use the `RequiresPlugins` trait for methods that depend on optional plugins:
+```php
+use JayI\Cortex\Support\Concerns\RequiresPlugins;
+
+class MyClass {
+    use RequiresPlugins;
+
+    public function withTools($tools) {
+        $this->ensurePluginEnabled('tool'); // Throws PluginException if disabled
+        // ...
+    }
+}
+```
+
+### Extension Points and Hooks
+
+- **Extension Points** - Explicit places for plugins to inject functionality (e.g., `providers`, `tools`)
+- **Hooks** - Data modification at specific points: `chat.before_send`, `chat.after_receive`, `tool.before_execute`, `tool.after_execute`
 
 ## Testing
 
 - **Framework:** Pest PHP v3 with Orchestra Testbench
 - **Database:** In-memory SQLite for tests
-- **Mocking:** Mockery + FakeProvider for testing without real API calls
+- **Mocking:** Mockery + `FakeProvider` for testing without real API calls
+- **Base class:** `tests/TestCase.php` sets up the package with `CortexServiceProvider`
 
-Tests are in `tests/Unit/` and `tests/Feature/`. Base test class at `tests/TestCase.php`.
+Use `FakeProvider::text('response')` for testing:
+```php
+$fake = FakeProvider::text('Mocked response');
+$response = $fake->chat($request);
+$fake->assertSentCount(1);
+```
 
 ## Code Standards
 
 - Strict types enabled (`declare(strict_types=1)`)
 - PSR-4 autoloading
-- Heavy use of interfaces/contracts
-- Factory methods for exception creation
+- Heavy use of interfaces/contracts in `Contracts/` directories
+- Factory methods for exception creation (e.g., `PluginException::disabled($id)`)
 - DTOs via Spatie Laravel Data
 
 ## Documentation

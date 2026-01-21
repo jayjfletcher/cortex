@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace JayI\Cortex\Plugins\Workflow\Contracts;
 
-use Illuminate\Support\Collection;
+use JayI\Cortex\Plugins\Workflow\WorkflowCollection;
 
 interface WorkflowRegistryContract
 {
@@ -25,8 +25,20 @@ interface WorkflowRegistryContract
 
     /**
      * Get all registered workflows.
-     *
-     * @return Collection<string, WorkflowContract>
      */
-    public function all(): Collection;
+    public function all(): WorkflowCollection;
+
+    /**
+     * Get only the specified workflows.
+     *
+     * @param  array<int, string>  $ids
+     */
+    public function only(array $ids): WorkflowCollection;
+
+    /**
+     * Get all workflows except the specified ones.
+     *
+     * @param  array<int, string>  $ids
+     */
+    public function except(array $ids): WorkflowCollection;
 }

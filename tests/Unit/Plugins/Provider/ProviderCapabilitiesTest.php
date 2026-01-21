@@ -7,7 +7,7 @@ use JayI\Cortex\Plugins\Provider\ProviderCapabilities;
 
 describe('ProviderCapabilities', function () {
     it('creates with defaults', function () {
-        $capabilities = new ProviderCapabilities();
+        $capabilities = new ProviderCapabilities;
 
         expect($capabilities->streaming)->toBeFalse();
         expect($capabilities->tools)->toBeFalse();
@@ -109,7 +109,7 @@ describe('ProviderCapabilities', function () {
     });
 
     it('returns false for unknown capabilities', function () {
-        $capabilities = new ProviderCapabilities();
+        $capabilities = new ProviderCapabilities;
         expect($capabilities->supports('unknown_feature'))->toBeFalse();
     });
 

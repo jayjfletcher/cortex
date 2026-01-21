@@ -5,11 +5,9 @@ declare(strict_types=1);
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Collection;
 use JayI\Cortex\Contracts\PluginManagerContract;
-use JayI\Cortex\Plugins\Tool\Contracts\ToolContract;
 use JayI\Cortex\Plugins\Tool\Contracts\ToolRegistryContract;
 use JayI\Cortex\Plugins\Tool\Tool;
 use JayI\Cortex\Plugins\Tool\ToolPlugin;
-use JayI\Cortex\Plugins\Tool\ToolRegistry;
 use JayI\Cortex\Plugins\Tool\ToolResult;
 use JayI\Cortex\Support\ExtensionPoint;
 

@@ -284,7 +284,7 @@ class StdioMcpServer implements McpServerContract
 
         return Tool::make($definition['name'])
             ->withDescription($definition['description'] ?? '')
-            ->withHandler(function (array $input) use ($definition, $serverId) {
+            ->withHandler(function (array $input) use ($definition) {
                 $response = $this->sendRequest('tools/call', [
                     'name' => $definition['name'],
                     'arguments' => $input,
@@ -334,7 +334,7 @@ class StdioMcpServer implements McpServerContract
             'params' => $params,
         ];
 
-        $this->process->getInput()->write(json_encode($request) . "\n");
+        $this->process->getInput()->write(json_encode($request)."\n");
 
         // Read response (simplified - real implementation needs proper async handling)
         $output = '';
@@ -384,6 +384,6 @@ class StdioMcpServer implements McpServerContract
             'params' => $params,
         ];
 
-        $this->process->getInput()->write(json_encode($notification) . "\n");
+        $this->process->getInput()->write(json_encode($notification)."\n");
     }
 }

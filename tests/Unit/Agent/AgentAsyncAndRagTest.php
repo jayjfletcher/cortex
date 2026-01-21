@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Collection;
 use JayI\Cortex\Plugins\Agent\Agent;
 use JayI\Cortex\Plugins\Agent\AgentRunStatus;
 use JayI\Cortex\Plugins\Agent\Contracts\RetrieverContract;

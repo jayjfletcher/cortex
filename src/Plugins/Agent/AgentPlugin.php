@@ -69,7 +69,7 @@ class AgentPlugin implements PluginContract
     {
         // Register agent registry
         $this->container->singleton(AgentRegistryContract::class, function () {
-            return new AgentRegistry();
+            return new AgentRegistry;
         });
 
         // Register default loop

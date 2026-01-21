@@ -10,7 +10,7 @@ use JayI\Cortex\Plugins\Chat\Messages\MessageCollection;
 
 describe('BufferMemory', function () {
     it('stores all messages', function () {
-        $memory = new BufferMemory();
+        $memory = new BufferMemory;
 
         $memory->add(Message::user('Hello'));
         $memory->add(Message::assistant('Hi there!'));
@@ -21,7 +21,7 @@ describe('BufferMemory', function () {
     });
 
     it('retrieves messages', function () {
-        $memory = new BufferMemory();
+        $memory = new BufferMemory;
 
         $memory->add(Message::user('Hello'));
         $memory->add(Message::assistant('Hi!'));
@@ -34,7 +34,7 @@ describe('BufferMemory', function () {
     });
 
     it('clears all messages', function () {
-        $memory = new BufferMemory();
+        $memory = new BufferMemory;
 
         $memory->add(Message::user('Hello'));
         $memory->add(Message::assistant('Hi!'));
@@ -46,7 +46,7 @@ describe('BufferMemory', function () {
     });
 
     it('adds many messages at once', function () {
-        $memory = new BufferMemory();
+        $memory = new BufferMemory;
 
         $messages = MessageCollection::make()
             ->user('One')
@@ -306,7 +306,7 @@ describe('TokenLimitMemory', function () {
 
 describe('BufferMemory additional', function () {
     it('checks isEmpty correctly', function () {
-        $memory = new BufferMemory();
+        $memory = new BufferMemory;
 
         expect($memory->isEmpty())->toBeTrue();
 

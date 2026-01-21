@@ -8,7 +8,6 @@ use JayI\Cortex\Plugins\Schema\Schema;
 use JayI\Cortex\Plugins\Tool\Contracts\ToolContract;
 use JayI\Cortex\Plugins\Tool\Tool;
 use JayI\Cortex\Plugins\Tool\ToolCollection;
-use JayI\Cortex\Plugins\Tool\ToolContext;
 use JayI\Cortex\Plugins\Tool\ToolRegistry;
 use JayI\Cortex\Plugins\Tool\ToolResult;
 
@@ -207,5 +206,72 @@ describe('ToolRegistry', function () {
         $registry->discover();
 
         expect(true)->toBeTrue();
+    });
+
+    it('returns only specified tools', function () {
+        $container = Mockery::mock(Container::class);
+        $registry = new ToolRegistry($container);
+
+        $tool1 = Tool::make('tool1')->withHandler(fn () => ToolResult::success('1'));
+        $tool2 = Tool::make('tool2')->withHandler(fn () => ToolResult::success('2'));
+        $tool3 = Tool::make('tool3')->withHandler(fn () => ToolResult::success('3'));
+
+        $registry->register($tool1);
+        $registry->register($tool2);
+        $registry->register($tool3);
+
+        $only = $registry->only(['tool1', 'tool3']);
+
+        expect($only->count())->toBe(2);
+        expect($only->has('tool1'))->toBeTrue();
+        expect($only->has('tool3'))->toBeTrue();
+        expect($only->has('tool2'))->toBeFalse();
+    });
+
+    it('returns all tools except specified ones', function () {
+        $container = Mockery::mock(Container::class);
+        $registry = new ToolRegistry($container);
+
+        $tool1 = Tool::make('tool1')->withHandler(fn () => ToolResult::success('1'));
+        $tool2 = Tool::make('tool2')->withHandler(fn () => ToolResult::success('2'));
+        $tool3 = Tool::make('tool3')->withHandler(fn () => ToolResult::success('3'));
+
+        $registry->register($tool1);
+        $registry->register($tool2);
+        $registry->register($tool3);
+
+        $except = $registry->except(['tool2']);
+
+        expect($except->count())->toBe(2);
+        expect($except->has('tool1'))->toBeTrue();
+        expect($except->has('tool3'))->toBeTrue();
+        expect($except->has('tool2'))->toBeFalse();
+    });
+
+    it('returns empty collection when only specified non-existent names', function () {
+        $container = Mockery::mock(Container::class);
+        $registry = new ToolRegistry($container);
+
+        $tool1 = Tool::make('tool1')->withHandler(fn () => ToolResult::success('1'));
+        $registry->register($tool1);
+
+        $only = $registry->only(['nonexistent']);
+
+        expect($only->count())->toBe(0);
+    });
+
+    it('returns all tools when except specified non-existent names', function () {
+        $container = Mockery::mock(Container::class);
+        $registry = new ToolRegistry($container);
+
+        $tool1 = Tool::make('tool1')->withHandler(fn () => ToolResult::success('1'));
+        $tool2 = Tool::make('tool2')->withHandler(fn () => ToolResult::success('2'));
+
+        $registry->register($tool1);
+        $registry->register($tool2);
+
+        $except = $registry->except(['nonexistent']);
+
+        expect($except->count())->toBe(2);
     });
 });

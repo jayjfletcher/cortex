@@ -116,14 +116,14 @@ describe('WorkflowStatus Enum', function () {
 
 describe('CacheWorkflowStateRepository', function () {
     it('implements WorkflowStateRepositoryContract', function () {
-        $repository = new CacheWorkflowStateRepository();
+        $repository = new CacheWorkflowStateRepository;
 
         expect($repository)->toBeInstanceOf(WorkflowStateRepositoryContract::class);
     });
 
     it('saves and finds workflow state', function () {
         Cache::flush();
-        $repository = new CacheWorkflowStateRepository();
+        $repository = new CacheWorkflowStateRepository;
         $state = WorkflowState::start('workflow-1', 'run-'.uniqid(), 'start');
 
         $repository->save($state);
@@ -135,7 +135,7 @@ describe('CacheWorkflowStateRepository', function () {
 
     it('returns null for missing state', function () {
         Cache::flush();
-        $repository = new CacheWorkflowStateRepository();
+        $repository = new CacheWorkflowStateRepository;
 
         $state = $repository->find('nonexistent-run');
 
@@ -144,7 +144,7 @@ describe('CacheWorkflowStateRepository', function () {
 
     it('deletes workflow state', function () {
         Cache::flush();
-        $repository = new CacheWorkflowStateRepository();
+        $repository = new CacheWorkflowStateRepository;
         $state = WorkflowState::start('workflow-1', 'run-'.uniqid(), 'start');
 
         $repository->save($state);
@@ -156,7 +156,7 @@ describe('CacheWorkflowStateRepository', function () {
 
     it('finds workflows by status', function () {
         Cache::flush();
-        $repository = new CacheWorkflowStateRepository();
+        $repository = new CacheWorkflowStateRepository;
 
         // Create a paused workflow
         $state = WorkflowState::start('workflow-1', 'run-'.uniqid(), 'start');
