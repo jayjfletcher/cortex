@@ -86,10 +86,13 @@ class McpPlugin implements PluginContract
     {
         $registry = $this->container->make(McpRegistryContract::class);
 
+        // Get config from container if not injected
+        $config = $this->config ?: $this->container->make('config')->get('cortex.mcp', []);
+
         // Register servers from config (if discovery is enabled)
-        $discoveryEnabled = $this->config['discovery']['enabled'] ?? true;
+        $discoveryEnabled = $config['discovery']['enabled'] ?? true;
         if ($discoveryEnabled) {
-            $servers = $this->config['servers'] ?? [];
+            $servers = $config['servers'] ?? [];
             foreach ($servers as $id => $serverConfig) {
                 $server = $this->createServerFromConfig($id, $serverConfig);
                 if ($server !== null) {
@@ -105,7 +108,7 @@ class McpPlugin implements PluginContract
         }
 
         // Auto-connect if configured
-        if ($this->config['auto_connect'] ?? false) {
+        if ($config['auto_connect'] ?? false) {
             $registry->connectAll();
         }
     }
