@@ -72,7 +72,10 @@ class SimpleAgentLoop implements AgentLoopContract
 
                 // Send request
                 $request = $this->buildRequest($agent, $messages);
-                $response = $this->chatClient->send($request);
+                $client = $agent->provider() !== null
+                    ? $this->chatClient->using($agent->provider())
+                    : $this->chatClient;
+                $response = $client->send($request);
 
                 $duration = microtime(true) - $startTime;
                 $totalUsage = $totalUsage->add($response->usage);

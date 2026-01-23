@@ -217,6 +217,14 @@ class PluginManager implements PluginManagerContract
     }
 
     /**
+     * Get the container instance.
+     */
+    public function getContainer(): Container
+    {
+        return $this->container;
+    }
+
+    /**
      * Check if the manager has booted.
      */
     public function isBooted(): bool

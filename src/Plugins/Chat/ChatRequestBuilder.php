@@ -69,14 +69,29 @@ class ChatRequestBuilder
     /**
      * Set all messages.
      *
-     * @param  array<int, Message>|MessageCollection  $messages
+     * @param  array<int, Message|array{role: string, content: string}>|MessageCollection  $messages
      */
     public function messages(array|MessageCollection $messages): static
     {
-        if (is_array($messages)) {
-            $this->messages = MessageCollection::make($messages);
-        } else {
+        if ($messages instanceof MessageCollection) {
             $this->messages = $messages;
+        } else {
+            $collection = MessageCollection::make();
+            foreach ($messages as $message) {
+                if ($message instanceof Message) {
+                    $collection->add($message);
+                } elseif (is_array($message) && isset($message['role'], $message['content'])) {
+                    $role = $message['role'];
+                    $content = $message['content'];
+                    $converted = match ($role) {
+                        'assistant' => Message::assistant($content),
+                        'system' => Message::system($content),
+                        default => Message::user($content),
+                    };
+                    $collection->add($converted);
+                }
+            }
+            $this->messages = $collection;
         }
 
         return $this;

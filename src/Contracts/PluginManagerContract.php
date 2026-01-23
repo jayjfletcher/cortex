@@ -74,4 +74,9 @@ interface PluginManagerContract
      * Replace a bound implementation.
      */
     public function replace(string $abstract, string $concrete): void;
+
+    /**
+     * Get the container instance.
+     */
+    public function getContainer(): \Illuminate\Contracts\Container\Container;
 }
