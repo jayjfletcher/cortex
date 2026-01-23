@@ -3,11 +3,13 @@
     "version": "0.5.0",
     "description": "A Laravel package",
     "keywords": ["laravel", "package"],
+    "homepage": "https://github.com/jayi/cortex",
     "license": "MIT",
     "authors": [
         {
             "name": "Jay Fletcher",
-            "email": "jayjfletcher@email.com"
+            "email": "jayjfletcher@gmail.com",
+            "role": "Developer"
         }
     ],
     "require": {
