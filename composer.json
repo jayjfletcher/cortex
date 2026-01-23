@@ -1,6 +1,5 @@
 {
     "name": "jayi/cortex",
-    "version": "dev-main",
     "description": "A Laravel package",
     "keywords": ["laravel", "package"],
     "homepage": "https://github.com/jayi/cortex",
@@ -73,6 +72,6 @@
             "pestphp/pest-plugin": true
         }
     },
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "prefer-stable": true
 }
