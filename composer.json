@@ -1,6 +1,6 @@
 {
     "name": "jayi/cortex",
-    "version": "0.5.0",
+    "version": "dev-main",
     "description": "A Laravel package",
     "keywords": ["laravel", "package"],
     "homepage": "https://github.com/jayi/cortex",
